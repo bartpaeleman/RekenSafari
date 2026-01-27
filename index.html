@@ -19,9 +19,45 @@
         #helper-text { font-size: 1.1rem; color: #757575; margin-top: 10px; height: 25px; }
         .focus-mode { border-color: #f44336 !important; background-color: #ffebee !important; }
         .celebration-message { color: #e65100; font-size: 1.8rem; margin-top: 15px; font-weight: bold; }
+
+        /* Setup Screen Styles */
+        #setup-container { background: white; border-radius: 40px; padding: 30px; max-width: 600px; margin: auto; border: 12px solid #4CAF50; box-shadow: 0 15px 0 #2e7d32, 0 25px 50px rgba(0,0,0,0.15); display: block; }
+        #game-container { display: none; background: linear-gradient(to bottom, #ffe0b2, #fff3e0); border-radius: 40px; padding: 30px; max-width: 600px; margin: auto; border: 12px solid #ffcc00; box-shadow: 0 15px 0 #e6b800, 0 25px 50px rgba(0,0,0,0.15); }
+        .setup-section { margin-bottom: 25px; }
+        .setup-section h3 { color: #2e7d32; font-size: 1.5rem; margin-bottom: 10px; }
+        .options-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .option-btn { background: #e8f5e9; border: 3px solid #81c784; border-radius: 15px; padding: 10px 20px; font-size: 1.2rem; cursor: pointer; font-family: inherit; color: #2e7d32; transition: all 0.2s; }
+        .option-btn:hover { background: #c8e6c9; transform: translateY(-2px); }
+        .option-btn.selected { background: #4CAF50; color: white; border-color: #2e7d32; box-shadow: 0 4px 0 #1b5e20; }
+        #start-btn { background: #ff9800; color: white; border: none; padding: 15px 40px; font-size: 2rem; border-radius: 50px; cursor: pointer; margin-top: 20px; box-shadow: 0 6px 0 #e65100; font-family: inherit; opacity: 0.5; pointer-events: none; transition: all 0.2s; }
+        #start-btn.active { opacity: 1; pointer-events: all; }
+        #start-btn:active { transform: translateY(6px); box-shadow: none; }
     </style>
 </head>
 <body>
+
+<div id="setup-container">
+    <div class="safari-header">🌍 Safari Planning 🗺️</div>
+    <div class="setup-section">
+        <h3>Wat wil je oefenen?</h3>
+        <div class="options-grid" id="operation-options">
+            <button class="option-btn" data-value="split">Getallen splitsen</button>
+            <button class="option-btn" data-value="add">Optellen</button>
+            <button class="option-btn" data-value="subtract">Aftrekken</button>
+            <button class="option-btn" data-value="multiply">Vermenigvuldigen</button>
+            <button class="option-btn" data-value="divide">Delen</button>
+        </div>
+    </div>
+    <div class="setup-section">
+        <h3>Tot welk level wil je gaan?</h3>
+        <div class="options-grid" id="level-options">
+            <button class="option-btn" data-value="1">Level 1 (tot 10)</button>
+            <button class="option-btn" data-value="2">Level 2 (tot 20)</button>
+            <button class="option-btn" data-value="3">Level 3 (tot 100)</button>
+        </div>
+    </div>
+    <button id="start-btn">Start Avontuur! 🚀</button>
+</div>
 
 <div id="game-container">
     <div class="safari-header">🐘 Rekensafari Avontuur 🦁</div>
@@ -41,12 +77,23 @@
 <script>
     let animalsFound = 0;
     let currentAnswer;
-    let currentLevel = 1; // 1 = tot 10, 2 = tot 20
+    let currentLevel = 1;
     let startTime;
     let timerInterval;
-    let lastigeSommen = []; // Opslag voor moeilijke sommen
+    let lastigeSommen = [];
     let sommenTeller = 0;
-    const animalEmojis = ['🦁', '🐘', '🦒', '🐒', '🦓', '🐅', '🐊', '🦛']; // Meer dieren!
+    const animalEmojis = ['🦁', '🐘', '🦒', '🐒', '🦓', '🐅', '🐊', '🦛'];
+
+    // Settings
+    let selectedOperation = null;
+    let targetMaxLevel = null;
+
+    // Elements
+    const setupContainer = document.getElementById('setup-container');
+    const gameContainer = document.getElementById('game-container');
+    const startBtn = document.getElementById('start-btn');
+    const operationOptions = document.querySelectorAll('#operation-options .option-btn');
+    const levelOptions = document.querySelectorAll('#level-options .option-btn');
 
     const problemEl = document.getElementById('problem');
     const answerInput = document.getElementById('answer');
@@ -57,16 +104,49 @@
     const helperTextEl = document.getElementById('helper-text');
     const celebrationMessageEl = document.getElementById('celebration-message');
 
+    // Setup Logic
+    function updateStartButton() {
+        if (selectedOperation && targetMaxLevel) {
+            startBtn.classList.add('active');
+            startBtn.disabled = false;
+        }
+    }
+
+    operationOptions.forEach(btn => {
+        btn.addEventListener('click', () => {
+            operationOptions.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedOperation = btn.dataset.value;
+            updateStartButton();
+        });
+    });
+
+    levelOptions.forEach(btn => {
+        btn.addEventListener('click', () => {
+            levelOptions.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            targetMaxLevel = parseInt(btn.dataset.value);
+            updateStartButton();
+        });
+    });
+
+    startBtn.addEventListener('click', () => {
+        if (!selectedOperation || !targetMaxLevel) return;
+        setupContainer.style.display = 'none';
+        gameContainer.style.display = 'block';
+        generateProblem();
+    });
+
     function playSound(type) {
         let audio;
         if (type === 'correct') {
-            audio = new Audio('https://www.soundjay.com/buttons/sounds/button-2.mp3'); // Vrolijk geluid
+            audio = new Audio('https://www.soundjay.com/buttons/sounds/button-2.mp3');
         } else if (type === 'levelup') {
-            audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3'); // Bel bij level-up
+            audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
         }
         if (audio) {
-            audio.volume = 0.3; // Niet te hard
-            audio.play().catch(e => console.log("Sound play error:", e)); // Foutafhandeling
+            audio.volume = 0.3;
+            audio.play().catch(e => console.log("Sound play error:", e));
         }
     }
 
@@ -74,17 +154,17 @@
         startTime = Date.now();
         clearInterval(timerInterval);
         timerBar.style.width = '0%';
-        timerBar.style.backgroundColor = '#2e7d32'; // Groen voor start
+        timerBar.style.backgroundColor = '#2e7d32';
         
         timerInterval = setInterval(() => {
             let elapsed = Date.now() - startTime;
-            let percent = (elapsed / 7000) * 100; // 7 seconden om te antwoorden
+            let percent = (elapsed / 7000) * 100;
             if (percent > 100) percent = 100;
 
             timerBar.style.width = percent + '%';
-            if (percent > 70) timerBar.style.backgroundColor = '#d32f2f'; // Rood als het bijna op is
-            else if (percent > 40) timerBar.style.backgroundColor = '#ffc107'; // Oranje in het midden
-            else timerBar.style.backgroundColor = '#2e7d32'; // Groen
+            if (percent > 70) timerBar.style.backgroundColor = '#d32f2f';
+            else if (percent > 40) timerBar.style.backgroundColor = '#ffc107';
+            else timerBar.style.backgroundColor = '#2e7d32';
 
         }, 100);
     }
@@ -92,62 +172,100 @@
     function generateProblem() {
         sommenTeller++;
         
-        // Controleer voor Level Up
-        if (animalsFound > 0 && animalsFound % 5 === 0 && currentLevel < 3 && !celebrationMessageEl.textContent) {
+        // Check for Level Up (every 10 animals)
+        if (animalsFound > 0 && animalsFound % 10 === 0 && currentLevel < targetMaxLevel && !celebrationMessageEl.textContent) {
             currentLevel++;
-            const levelText = currentLevel === 2 ? "2: Naar het Bovenbos (tot 20)!" : "3: Diepe Jungle (nog sneller!)";
-            levelIndicator.textContent = `Level ${levelText}`;
-            celebrationMessageEl.textContent = "GEFELICITEERD! Een nieuwe zone ontdekt!";
-            playSound('levelup');
-            setTimeout(() => celebrationMessageEl.textContent = "", 3000);
-            
-            // Geef een korte pauze na de felicitatie voor de volgende som
-            setTimeout(() => {
-                _generateActualProblem();
-            }, 3500); // Wacht langer na een level-up
-            return; // Stop en wacht op de timeout
+            showLevelUp();
+            return;
         }
 
         _generateActualProblem();
     }
 
+    function showLevelUp() {
+        const levelNames = ["Start Savanne", "Bovenbos", "Diepe Jungle"];
+        const levelText = `${currentLevel}: ${levelNames[currentLevel-1]}!`;
+        levelIndicator.textContent = `Level ${levelText}`;
+        celebrationMessageEl.textContent = "GEFELICITEERD! Een nieuwe zone ontdekt!";
+        playSound('levelup');
+        setTimeout(() => celebrationMessageEl.textContent = "", 3000);
+        setTimeout(() => {
+            _generateActualProblem();
+        }, 3500);
+    }
+
     function _generateActualProblem() {
         helperTextEl.textContent = "";
 
-        // Elke 4e som een lastige som herhalen als die er zijn
         if (sommenTeller % 4 === 0 && lastigeSommen.length > 0) {
             let index = Math.floor(Math.random() * lastigeSommen.length);
             let gekozen = lastigeSommen[index];
             currentAnswer = gekozen.ans;
             problemEl.innerHTML = gekozen.txt;
             helperTextEl.textContent = "Oefen deze nog eens!";
-            lastigeSommen.splice(index, 1); // Verwijder uit lijst, we gaan hem nu oefenen
+            lastigeSommen.splice(index, 1);
         } else {
-            const maxNum = (currentLevel === 1) ? 10 : (currentLevel === 2 ? 20 : 20); // Levels 1, 2 en 3 zijn tot 10, 20, 20
-            levelIndicator.textContent = `Level ${currentLevel}: ${currentLevel === 1 ? "Start Savanne (tot 10)" : (currentLevel === 2 ? "Bovenbos (tot 20)" : "Diepe Jungle (tot 20, sneller!)")}`;
+            let maxNum;
+             if (currentLevel === 1) maxNum = 10;
+             else if (currentLevel === 2) maxNum = 20;
+             else maxNum = 100;
+
+            const levelNames = ["Start Savanne (tot 10)", "Bovenbos (tot 20)", "Diepe Jungle (tot 100)"];
+            levelIndicator.textContent = `Level ${currentLevel}: ${levelNames[currentLevel-1]}`;
             levelIndicator.style.background = currentLevel === 1 ? "#4CAF50" : (currentLevel === 2 ? "#FF9800" : "#9C27B0");
             
-            let type = Math.random();
             let a, b, txt;
-            
-            if (type < 0.4) { // Plus
-                a = Math.floor(Math.random() * (maxNum + 1));
-                b = Math.floor(Math.random() * (maxNum - a + 1));
-                currentAnswer = a + b;
-                txt = `${a} + ${b} =`;
-            } else if (type < 0.7) { // Min
-                a = Math.floor(Math.random() * maxNum) + 1;
-                b = Math.floor(Math.random() * (a + 1));
-                currentAnswer = a - b;
-                txt = `${a} - ${b} =`;
-            } else { // Splitsen
+            let op = selectedOperation;
+
+            problemEl.style.fontSize = "80px";
+
+            if (op === 'split') {
                 let tot = Math.floor(Math.random() * (maxNum - 1)) + 2;
                 let d1 = Math.floor(Math.random() * (tot + 1));
                 currentAnswer = tot - d1;
                 txt = `Splits ${tot}:<br>${d1} en ...`;
-                problemEl.style.fontSize = "45px"; // Kleinere tekst voor splitsingen
+                problemEl.style.fontSize = "45px";
+            } else if (op === 'add') {
+                a = Math.floor(Math.random() * (maxNum + 1));
+                b = Math.floor(Math.random() * (maxNum - a + 1));
+                currentAnswer = a + b;
+                txt = `${a} + ${b} =`;
+            } else if (op === 'subtract') {
+                a = Math.floor(Math.random() * maxNum) + 1;
+                b = Math.floor(Math.random() * (a + 1));
+                currentAnswer = a - b;
+                txt = `${a} - ${b} =`;
+            } else if (op === 'multiply') {
+                if (currentLevel === 3) {
+                     a = Math.floor(Math.random() * 10) + 1;
+                     b = Math.floor(Math.random() * 10) + 1;
+                } else {
+                     a = Math.floor(Math.random() * (maxNum/2)) + 1;
+                     let attempts = 0;
+                     do {
+                        a = Math.floor(Math.random() * (maxNum)) + 1;
+                        b = Math.floor(Math.random() * (maxNum/a)) + 1;
+                     } while (a*b > maxNum && attempts++ < 10);
+                     if (a*b > maxNum) { a=2; b=3; }
+                }
+                currentAnswer = a * b;
+                txt = `${a} x ${b} =`;
+            } else if (op === 'divide') {
+                 if (currentLevel === 3) {
+                     b = Math.floor(Math.random() * 10) + 1;
+                     currentAnswer = Math.floor(Math.random() * 10) + 1;
+                } else {
+                     b = Math.floor(Math.random() * (maxNum/2)) + 1;
+                     let attempts = 0;
+                     do {
+                         currentAnswer = Math.floor(Math.random() * (maxNum/b)) + 1;
+                     } while (currentAnswer * b > maxNum && attempts++ < 10);
+                     if (currentAnswer * b > maxNum) { b=2; currentAnswer=2; }
+                }
+                a = currentAnswer * b;
+                txt = `${a} : ${b} =`;
             }
-            if (type < 0.7) problemEl.style.fontSize = "80px"; // Reset font size voor gewone sommen
+
             problemEl.innerHTML = txt;
         }
 
@@ -171,31 +289,27 @@
                 feedbackText = "Wauw, supersnel! " + newAnimal + " gered!";
             }
             feedbackMessageEl.textContent = feedbackText;
-            animalCollectionEl.textContent += newAnimal; // Voeg dier toe aan verzameling
+            animalCollectionEl.textContent += newAnimal;
             
-            // Verwijder oude dieren als het er te veel worden om de rij leesbaar te houden
             if (animalCollectionEl.textContent.length > 20) animalCollectionEl.textContent = animalCollectionEl.textContent.substring(2);
 
             setTimeout(() => {
                 feedbackMessageEl.textContent = "";
-                generateProblem(); // Genereer volgende som
+                generateProblem();
             }, 600);
         } else if (answerInput.value.length >= currentAnswer.toString().length && val !== currentAnswer) {
-            // Fout antwoord ingevuld
-            lastigeSommen.push({txt: problemEl.innerHTML, ans: currentAnswer}); // Voeg toe aan lastige sommen
+            lastigeSommen.push({txt: problemEl.innerHTML, ans: currentAnswer});
             feedbackMessageEl.textContent = "Oeps, probeer het nog eens!";
-            feedbackMessageEl.style.color = "#d32f2f"; // Rood bij fout
-            answerInput.classList.add('focus-mode'); // Visuele focus op input
+            feedbackMessageEl.style.color = "#d32f2f";
+            answerInput.classList.add('focus-mode');
             setTimeout(() => { 
                 answerInput.classList.remove('focus-mode'); 
                 answerInput.value = ''; 
                 feedbackMessageEl.textContent = "";
-                feedbackMessageEl.style.color = "#4CAF50"; // Reset kleur
+                feedbackMessageEl.style.color = "#4CAF50";
             }, 800);
         }
     });
-
-    generateProblem(); // Start het eerste probleem
 </script>
 </body>
 </html>
