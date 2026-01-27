@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rekensafari - Slimme Trainer</title>
+    <style>
+        body { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; text-align: center; background-color: #f0f9ff; padding: 20px; user-select: none; }
+        #game-container { background: white; border-radius: 40px; padding: 30px; max-width: 550px; margin: auto; border: 10px solid #ffcc00; box-shadow: 0 15px 0 #e6b800; }
+        .level-badge { background: #ff5722; color: white; padding: 8px 20px; border-radius: 50px; font-weight: bold; margin-bottom: 15px; display: inline-block; font-size: 1.2rem; }
+        #timer-container { width: 100%; height: 25px; background: #eee; border-radius: 15px; margin: 20px 0; border: 3px solid #ddd; }
+        #timer-bar { width: 0%; height: 100%; background: #4caf50; border-radius: 10px; transition: width 0.1s linear; }
+        .som { font-size: 70px; margin: 10px 0; color: #333; min-height: 120px; display: flex; align-items: center; justify-content: center; }
+        input { font-size: 50px; width: 130px; text-align: center; border: 5px solid #4fc3f7; border-radius: 20px; outline: none; background: #fffde7; color: #0277bd; }
+        .star-container { font-size: 30px; margin-top: 25px; min-height: 45px; }
+        #helper-text { font-size: 18px; color: #888; margin-top: 10px; height: 20px; }
+        .focus-mode { border-color: #f44336 !important; background-color: #ffebee !important; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="level-indicator" class="level-badge">Starten maar!</div>
+    <div id="timer-container"><div id="timer-bar"></div></div>
+    
+    <div class="som" id="problem">...</div>
+    <input type="number" id="answer" pattern="\d*" inputmode="numeric" autofocus placeholder="?">
+    
+    <div id="helper-text"></div>
+    <div class="star-container" id="star-display"></div>
+</div>
+
+<script>
+    let stars = 0;
+    let currentAnswer;
+    let currentLevel = 1;
+    let startTime;
+    let timerInterval;
+    let lastigeSommen = []; // Lijst met foutjes of trage sommen
+    let sommenTeller = 0;
+
+    const problemEl = document.getElementById('problem');
+    const answerInput = document.getElementById('answer');
+    const starDisplay = document.getElementById('star-display');
+    const levelIndicator = document.getElementById('level-indicator');
+    const timerBar = document.getElementById('timer-bar');
+    const helperText = document.getElementById('helper-text');
+
+    function startTimer() {
+        startTime = Date.now();
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            let elapsed = Date.now() - startTime;
+            let percent = (elapsed / 7000) * 100; // 7 seconden voor de balk
+            if (percent > 100) percent = 100;
+            timerBar.style.width = percent + '%';
+            if (percent > 70) timerBar.style.backgroundColor = '#f44336';
+            else timerBar.style.backgroundColor = '#4caf50';
+        }, 100);
+    }
+
+    function generateProblem() {
+        sommenTeller++;
+        
+        // Elke 4e som een lastige som herhalen als die er zijn
+        if (sommenTeller % 4 === 0 && lastigeSommen.length > 0) {
+            let index = Math.floor(Math.random() * lastigeSommen.length);
+            let gekozen = lastigeSommen[index];
+            currentAnswer = gekozen.ans;
+            problemEl.innerHTML = gekozen.txt;
+            helperText.textContent = "Deze nog een keertje!";
+            lastigeSommen.splice(index, 1); // Verwijder uit lijst, we gaan hem nu oefenen
+        } else {
+            helperText.textContent = "";
+            const maxNum = (stars < 15) ? 10 : 20;
+            levelIndicator.textContent = maxNum === 10 ? "Level 1: Tot 10" : "Level 2: Tot 20 🚀";
+            
+            let type = Math.random();
+            let a, b, txt;
+            
+            if (type < 0.4) { // Plus
+                a = Math.floor(Math.random() * (maxNum + 1));
+                b = Math.floor(Math.random() * (maxNum - a + 1));
+                currentAnswer = a + b;
+                txt = `${a} + ${b} =`;
+            } else if (type < 0.7) { // Min
+                a = Math.floor(Math.random() * maxNum) + 1;
+                b = Math.floor(Math.random() * (a + 1));
+                currentAnswer = a - b;
+                txt = `${a} - ${b} =`;
+            } else { // Splitsen
+                let tot = Math.floor(Math.random() * (maxNum - 1)) + 2;
+                let d1 = Math.floor(Math.random() * (tot + 1));
+                currentAnswer = tot - d1;
+                txt = `Splits ${tot}:<br>${d1} en ...`;
+                problemEl.style.fontSize = "40px";
+            }
+            if (type < 0.7) problemEl.style.fontSize = "70px";
+            problemEl.innerHTML = txt;
+        }
+
+        answerInput.value = '';
+        answerInput.focus();
+        startTimer();
+    }
+
+    answerInput.addEventListener('input', () => {
+        let val = parseInt(answerInput.value);
+        if (val === currentAnswer) {
+            let elapsed = Date.now() - startTime;
+            clearInterval(timerInterval);
+            
+            if (elapsed < 4000) {
+                starDisplay.textContent += "🌟"; 
+            } else {
+                starDisplay.textContent += "⭐";
+                // Te traag? Toevoegen aan lastige lijst
+                lastigeSommen.push({txt: problemEl.innerHTML, ans: currentAnswer});
+            }
+            
+            stars++;
+            if (starDisplay.textContent.length > 24) starDisplay.textContent = starDisplay.textContent.substring(2);
+
+            setTimeout(generateProblem, 500);
+        } else if (answerInput.value.length >= currentAnswer.toString().length && val !== currentAnswer) {
+            // Fout antwoord ingevuld
+            lastigeSommen.push({txt: problemEl.innerHTML, ans: currentAnswer});
+            answerInput.classList.add('focus-mode');
+            setTimeout(() => { answerInput.classList.remove('focus-mode'); answerInput.value = ''; }, 500);
+        }
+    });
+
+    generateProblem();
+</script>
+</body>
+</html>
