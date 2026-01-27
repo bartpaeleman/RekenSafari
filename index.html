@@ -3,77 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rekensafari - Slimme Trainer</title>
+    <title>Rekensafari: Verloren Dieren Avontuur!</title>
     <style>
-        body { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; text-align: center; background-color: #f0f9ff; padding: 20px; user-select: none; }
-        #game-container { background: white; border-radius: 40px; padding: 30px; max-width: 550px; margin: auto; border: 10px solid #ffcc00; box-shadow: 0 15px 0 #e6b800; }
-        .level-badge { background: #ff5722; color: white; padding: 8px 20px; border-radius: 50px; font-weight: bold; margin-bottom: 15px; display: inline-block; font-size: 1.2rem; }
-        #timer-container { width: 100%; height: 25px; background: #eee; border-radius: 15px; margin: 20px 0; border: 3px solid #ddd; }
-        #timer-bar { width: 0%; height: 100%; background: #4caf50; border-radius: 10px; transition: width 0.1s linear; }
-        .som { font-size: 70px; margin: 10px 0; color: #333; min-height: 120px; display: flex; align-items: center; justify-content: center; }
-        input { font-size: 50px; width: 130px; text-align: center; border: 5px solid #4fc3f7; border-radius: 20px; outline: none; background: #fffde7; color: #0277bd; }
-        .star-container { font-size: 30px; margin-top: 25px; min-height: 45px; }
-        #helper-text { font-size: 18px; color: #888; margin-top: 10px; height: 20px; }
+        body { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; text-align: center; background-color: #e6f7ff; padding: 20px; user-select: none; }
+        #game-container { background: linear-gradient(to bottom, #ffe0b2, #fff3e0); border-radius: 40px; padding: 30px; max-width: 600px; margin: auto; border: 12px solid #ffcc00; box-shadow: 0 15px 0 #e6b800, 0 25px 50px rgba(0,0,0,0.15); }
+        .safari-header { font-size: 2.8rem; color: #d32f2f; margin-bottom: 15px; text-shadow: 2px 2px 0 #ffeb3b; }
+        .level-badge { background: #4CAF50; color: white; padding: 8px 20px; border-radius: 50px; font-weight: bold; margin-bottom: 20px; display: inline-block; font-size: 1.3rem; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        #timer-container { width: 100%; height: 28px; background: #c8e6c9; border-radius: 15px; margin: 25px 0; border: 3px solid #81c784; overflow: hidden; }
+        #timer-bar { width: 0%; height: 100%; background: #2e7d32; border-radius: 12px; transition: width 0.1s linear; }
+        .som { font-size: 80px; margin: 15px 0; color: #333; min-height: 120px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        input { font-family: 'Comic Sans MS', sans-serif; font-size: 55px; width: 140px; text-align: center; border: 6px solid #ff9800; border-radius: 25px; outline: none; background: #fffde7; color: #e65100; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
+        input:focus { border-color: #ff5722; box-shadow: 0 0 15px rgba(255,87,34,0.5); }
+        #feedback-message { font-size: 1.8rem; color: #4CAF50; height: 35px; margin: 15px 0; font-weight: bold; }
+        #animal-collection { font-size: 3rem; margin-top: 25px; min-height: 50px; word-wrap: break-word; line-height: 1.2; }
+        #helper-text { font-size: 1.1rem; color: #757575; margin-top: 10px; height: 25px; }
         .focus-mode { border-color: #f44336 !important; background-color: #ffebee !important; }
+        .celebration-message { color: #e65100; font-size: 1.8rem; margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="game-container">
-    <div id="level-indicator" class="level-badge">Starten maar!</div>
+    <div class="safari-header">🐘 Rekensafari Avontuur 🦁</div>
+    <div id="level-indicator" class="level-badge">Begin je reis!</div>
+    
     <div id="timer-container"><div id="timer-bar"></div></div>
     
-    <div class="som" id="problem">...</div>
+    <div class="som" id="problem">Klaar voor de start?</div>
     <input type="number" id="answer" pattern="\d*" inputmode="numeric" autofocus placeholder="?">
     
+    <div id="feedback-message"></div>
     <div id="helper-text"></div>
-    <div class="star-container" id="star-display"></div>
+    <div id="animal-collection"></div>
+    <div class="celebration-message" id="celebration-message"></div>
 </div>
 
 <script>
-    let stars = 0;
+    let animalsFound = 0;
     let currentAnswer;
-    let currentLevel = 1;
+    let currentLevel = 1; // 1 = tot 10, 2 = tot 20
     let startTime;
     let timerInterval;
-    let lastigeSommen = []; // Lijst met foutjes of trage sommen
+    let lastigeSommen = []; // Opslag voor moeilijke sommen
     let sommenTeller = 0;
+    const animalEmojis = ['🦁', '🐘', '🦒', '🐒', '🦓', '🐅', '🐊', '🦛']; // Meer dieren!
 
     const problemEl = document.getElementById('problem');
     const answerInput = document.getElementById('answer');
-    const starDisplay = document.getElementById('star-display');
+    const animalCollectionEl = document.getElementById('animal-collection');
     const levelIndicator = document.getElementById('level-indicator');
     const timerBar = document.getElementById('timer-bar');
-    const helperText = document.getElementById('helper-text');
+    const feedbackMessageEl = document.getElementById('feedback-message');
+    const helperTextEl = document.getElementById('helper-text');
+    const celebrationMessageEl = document.getElementById('celebration-message');
+
+    function playSound(type) {
+        let audio;
+        if (type === 'correct') {
+            audio = new Audio('https://www.soundjay.com/buttons/sounds/button-2.mp3'); // Vrolijk geluid
+        } else if (type === 'levelup') {
+            audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3'); // Bel bij level-up
+        }
+        if (audio) {
+            audio.volume = 0.3; // Niet te hard
+            audio.play().catch(e => console.log("Sound play error:", e)); // Foutafhandeling
+        }
+    }
 
     function startTimer() {
         startTime = Date.now();
         clearInterval(timerInterval);
+        timerBar.style.width = '0%';
+        timerBar.style.backgroundColor = '#2e7d32'; // Groen voor start
+        
         timerInterval = setInterval(() => {
             let elapsed = Date.now() - startTime;
-            let percent = (elapsed / 7000) * 100; // 7 seconden voor de balk
+            let percent = (elapsed / 7000) * 100; // 7 seconden om te antwoorden
             if (percent > 100) percent = 100;
+
             timerBar.style.width = percent + '%';
-            if (percent > 70) timerBar.style.backgroundColor = '#f44336';
-            else timerBar.style.backgroundColor = '#4caf50';
+            if (percent > 70) timerBar.style.backgroundColor = '#d32f2f'; // Rood als het bijna op is
+            else if (percent > 40) timerBar.style.backgroundColor = '#ffc107'; // Oranje in het midden
+            else timerBar.style.backgroundColor = '#2e7d32'; // Groen
+
         }, 100);
     }
 
     function generateProblem() {
         sommenTeller++;
         
+        // Controleer voor Level Up
+        if (animalsFound > 0 && animalsFound % 5 === 0 && currentLevel < 3 && !celebrationMessageEl.textContent) {
+            currentLevel++;
+            const levelText = currentLevel === 2 ? "2: Naar het Bovenbos (tot 20)!" : "3: Diepe Jungle (nog sneller!)";
+            levelIndicator.textContent = `Level ${levelText}`;
+            celebrationMessageEl.textContent = "GEFELICITEERD! Een nieuwe zone ontdekt!";
+            playSound('levelup');
+            setTimeout(() => celebrationMessageEl.textContent = "", 3000);
+            
+            // Geef een korte pauze na de felicitatie voor de volgende som
+            setTimeout(() => {
+                _generateActualProblem();
+            }, 3500); // Wacht langer na een level-up
+            return; // Stop en wacht op de timeout
+        }
+
+        _generateActualProblem();
+    }
+
+    function _generateActualProblem() {
+        helperTextEl.textContent = "";
+
         // Elke 4e som een lastige som herhalen als die er zijn
         if (sommenTeller % 4 === 0 && lastigeSommen.length > 0) {
             let index = Math.floor(Math.random() * lastigeSommen.length);
             let gekozen = lastigeSommen[index];
             currentAnswer = gekozen.ans;
             problemEl.innerHTML = gekozen.txt;
-            helperText.textContent = "Deze nog een keertje!";
+            helperTextEl.textContent = "Oefen deze nog eens!";
             lastigeSommen.splice(index, 1); // Verwijder uit lijst, we gaan hem nu oefenen
         } else {
-            helperText.textContent = "";
-            const maxNum = (stars < 15) ? 10 : 20;
-            levelIndicator.textContent = maxNum === 10 ? "Level 1: Tot 10" : "Level 2: Tot 20 🚀";
+            const maxNum = (currentLevel === 1) ? 10 : (currentLevel === 2 ? 20 : 20); // Levels 1, 2 en 3 zijn tot 10, 20, 20
+            levelIndicator.textContent = `Level ${currentLevel}: ${currentLevel === 1 ? "Start Savanne (tot 10)" : (currentLevel === 2 ? "Bovenbos (tot 20)" : "Diepe Jungle (tot 20, sneller!)")}`;
+            levelIndicator.style.background = currentLevel === 1 ? "#4CAF50" : (currentLevel === 2 ? "#FF9800" : "#9C27B0");
             
             let type = Math.random();
             let a, b, txt;
@@ -93,9 +145,9 @@
                 let d1 = Math.floor(Math.random() * (tot + 1));
                 currentAnswer = tot - d1;
                 txt = `Splits ${tot}:<br>${d1} en ...`;
-                problemEl.style.fontSize = "40px";
+                problemEl.style.fontSize = "45px"; // Kleinere tekst voor splitsingen
             }
-            if (type < 0.7) problemEl.style.fontSize = "70px";
+            if (type < 0.7) problemEl.style.fontSize = "80px"; // Reset font size voor gewone sommen
             problemEl.innerHTML = txt;
         }
 
@@ -110,27 +162,40 @@
             let elapsed = Date.now() - startTime;
             clearInterval(timerInterval);
             
-            if (elapsed < 4000) {
-                starDisplay.textContent += "🌟"; 
-            } else {
-                starDisplay.textContent += "⭐";
-                // Te traag? Toevoegen aan lastige lijst
-                lastigeSommen.push({txt: problemEl.innerHTML, ans: currentAnswer});
-            }
-            
-            stars++;
-            if (starDisplay.textContent.length > 24) starDisplay.textContent = starDisplay.textContent.substring(2);
+            animalsFound++;
+            playSound('correct');
 
-            setTimeout(generateProblem, 500);
+            let newAnimal = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
+            let feedbackText = "Super! " + newAnimal + " gevonden!";
+            if (elapsed < 3000) { // Sneller is nog beter!
+                feedbackText = "Wauw, supersnel! " + newAnimal + " gered!";
+            }
+            feedbackMessageEl.textContent = feedbackText;
+            animalCollectionEl.textContent += newAnimal; // Voeg dier toe aan verzameling
+            
+            // Verwijder oude dieren als het er te veel worden om de rij leesbaar te houden
+            if (animalCollectionEl.textContent.length > 20) animalCollectionEl.textContent = animalCollectionEl.textContent.substring(2);
+
+            setTimeout(() => {
+                feedbackMessageEl.textContent = "";
+                generateProblem(); // Genereer volgende som
+            }, 600);
         } else if (answerInput.value.length >= currentAnswer.toString().length && val !== currentAnswer) {
             // Fout antwoord ingevuld
-            lastigeSommen.push({txt: problemEl.innerHTML, ans: currentAnswer});
-            answerInput.classList.add('focus-mode');
-            setTimeout(() => { answerInput.classList.remove('focus-mode'); answerInput.value = ''; }, 500);
+            lastigeSommen.push({txt: problemEl.innerHTML, ans: currentAnswer}); // Voeg toe aan lastige sommen
+            feedbackMessageEl.textContent = "Oeps, probeer het nog eens!";
+            feedbackMessageEl.style.color = "#d32f2f"; // Rood bij fout
+            answerInput.classList.add('focus-mode'); // Visuele focus op input
+            setTimeout(() => { 
+                answerInput.classList.remove('focus-mode'); 
+                answerInput.value = ''; 
+                feedbackMessageEl.textContent = "";
+                feedbackMessageEl.style.color = "#4CAF50"; // Reset kleur
+            }, 800);
         }
     });
 
-    generateProblem();
+    generateProblem(); // Start het eerste probleem
 </script>
 </body>
 </html>
