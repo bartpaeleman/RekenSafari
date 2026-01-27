@@ -1,4 +1,4 @@
-# De-Sommen-Safari
+# De Verloren Dieren Sommen Safari
 
 Voor een kind van 6 of 7 jaar is de overstap van "tellen op de vingers" naar "automatiseren" (het direct weten van het antwoord) een grote stap. Het moet niet voelen als huiswerk, maar als een spelletje waarbij ze succeservaringen opdoet.
 Hier is een concreet voorstel voor een web-app die specifiek gericht is op snelheid en plezier.
@@ -21,9 +21,12 @@ Om haar te boeien, koppelen we de sommen aan een beloningssysteem. In plaats van
 • Visueel Beloningssysteem: Een groeiende rij sterren onderaan het scherm die bijhoudt hoeveel succeservaringen ze al heeft gehad.
 Verwerkte elementen uit het proces
 
-Volgende elementen zijn toegevoegd:
-1. Basis (+ en -) tot 10 en 20.
-2. Splitsingen als extra oefenvorm.
-3. Gamification (sterren en visuele feedback).
-4. Tijdsdruk via een timer-balk om het nadenken te versnellen.
-5. Geheugen-functie voor moeilijke sommen (Spaced Repetition).
+**De "Verloren Dieren Safari" Ervaring:**
+• Het Avontuur Start: Bij de eerste som ziet ze Klaar voor de start? en vervolgens verschijnt de eerste rekensom.
+• Dieren Redden: Voor elk goed antwoord "redt" ze een dier, vertegenwoordigd door een vrolijke emoji. "Super! 🦁 gevonden!"
+• Verzamelboekje: De geredde dieren verschijnen onderaan, als een soort "verzamelboekje" met al haar successen.
+• Level Up (Nieuwe Safari Gebieden): Na elke 5 geredde dieren krijgt ze een felicitatie ("GEFELICITEERD! Een nieuwe zone ontdekt!") en gaat ze automatisch naar een "nieuw gebied" (Level 2: sommen tot 20). De moeilijkheidsgraad wordt geleidelijk opgebouwd.
+• Visuele Timer als "Expeditie-meter": De kleurende balk geeft aan hoe snel ze is. Groen = snel, Oranje = goed bezig, Rood = bijna voorbij. Dit voelt als de spanningsboog van een expeditie.
+• Lastige Sommen als "Herhalingsmissies": Sommen die ze fout heeft of te lang over doet, komen later terug als een speciale "Oefen deze nog eens!"-missie, maar dan in een speelse context.
+• Geen "Fout"-geluid: Bewust geen negatieve geluiden toegevoegd om demotiverende elementen te vermijden. Bij een fout wordt de input even rood en krijgt ze de kans het opnieuw te proberen.
+• Achtergrondgeluiden (Optioneel): U kunt zelfs overwegen om een rustig, safari-achtig achtergrondgeluid (vogels, lichte jungle geluiden) toe te voegen om de sfeer te versterken, maar dit vereist externe bestanden.
