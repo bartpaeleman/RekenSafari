@@ -157,11 +157,26 @@
         #start-btn.active { opacity: 1; pointer-events: all; }
         #start-btn:active { transform: translateY(0.8vh); box-shadow: none; }
 
-        .config-row { display: flex; justify-content: center; gap: 30px; margin-bottom: 30px; flex-wrap: wrap; }
-        .config-item { background: #fffde7; padding: 15px; border-radius: 15px; border: 3px solid #ffeb3b; text-align: left; max-width: 300px; }
-        .config-item label { display: block; font-weight: bold; color: #f57f17; font-size: 1.2rem; margin-bottom: 8px; }
-        .config-item input { font-size: 1.5rem; width: 100px; padding: 8px; border: 3px solid #fbc02d; border-radius: 10px; text-align: center; }
-        .config-desc { font-size: 0.9rem; color: #757575; margin-top: 5px; }
+        /* .config-row removed in favor of direct flex in parent */
+        .config-item { background: #fffde7; padding: 1vh 1vw; border-radius: 1.5vh; border: 0.3vh solid #ffeb3b; text-align: left; }
+        .config-item.compact {
+            flex: 1 1 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .config-item label { display: block; font-weight: bold; color: #f57f17; font-size: clamp(0.9rem, 2vh, 1.2rem); margin-bottom: 0.5vh; white-space: nowrap; }
+        .config-item input, .config-item select {
+            font-size: clamp(1rem, 2.5vh, 1.5rem);
+            width: 100%;
+            padding: 0.5vh;
+            border: 0.3vh solid #fbc02d;
+            border-radius: 1vh;
+            text-align: center;
+            box-sizing: border-box;
+            background: white;
+        }
 
         #stop-btn { background: #d32f2f; color: white; border: none; padding: 1.5vh 3vw; border-radius: 3vh; font-size: clamp(1rem, 2vh, 1.5rem); font-weight: bold; cursor: pointer; border-bottom: 0.5vh solid #b71c1c; }
         #stop-btn:active { transform: translateY(0.5vh); border-bottom: none; }
@@ -186,65 +201,53 @@
 </head>
 <body>
 
-<div id="parent-screen" class="app-container" style="background: white; border: 12px solid #673AB7; box-shadow: 0 15px 0 #4527A0;">
-    <div class="safari-header" style="color: #673AB7; text-shadow: none;">👨‍👩‍👧‍👦 Mama & Papa Scherm</div>
+<div id="parent-screen" class="app-container" style="background: white; border: 0.8vh solid #673AB7; box-shadow: 0 1vh 0 #4527A0; display: flex; flex-direction: column; justify-content: space-evenly;">
+    <div class="safari-header" style="color: #673AB7; text-shadow: none; font-size: clamp(2rem, 4vh, 3rem); margin-bottom: 1vh;">👨‍👩‍👧‍👦 Mama & Papa Scherm</div>
 
-    <div class="setup-section">
-        <h3>Instellingen voor het spel ⚙️</h3>
-        <p style="font-size: 1.2rem; margin-bottom: 25px; color: #555;">Stel hier de moeilijkheidsgraad en regels in.</p>
-
-        <div class="config-row">
-            <div class="config-item">
-                <label>Naam van het kind</label>
-                <input type="text" id="cfg-name" placeholder="Naam" style="width: 180px;">
-                <div class="config-desc">Wordt gebruikt in het spel.</div>
-            </div>
-            <div class="config-item">
-                <label>Tijd per Vraag (sec)</label>
-                <input type="number" id="cfg-time" value="10" min="3" max="120">
-                <div class="config-desc">Seconden om een antwoord te geven.</div>
-            </div>
-            <div class="config-item">
-                <label>Min. Vragen / Level</label>
-                <input type="number" id="cfg-total" value="10" min="5" max="100">
-                <div class="config-desc">Minimaal aantal vragen voordat voortgang wordt gecheckt.</div>
-            </div>
-            <div class="config-item">
-                <label>Drempel (%)</label>
-                <input type="number" id="cfg-threshold" value="80" min="10" max="100">
-                <div class="config-desc">% Correct nodig om naar volgend level te gaan.</div>
-            </div>
-            <div class="config-item">
-                <label>Badge Niveau</label>
-                <select id="cfg-badge-difficulty" style="font-size: 1.2rem; padding: 5px; border-radius: 10px; border: 3px solid #fbc02d; width: 100%;">
-                    <option value="easy">Makkelijk (x0.5)</option>
-                    <option value="normal" selected>Normaal (x1.0)</option>
-                    <option value="hard">Moeilijk (x1.5)</option>
-                </select>
-                <div class="config-desc">Hoe moeilijk is het om badges te halen?</div>
-            </div>
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 2vw; width: 100%;">
+        <!-- Settings Compact Grid -->
+        <div class="config-item compact">
+            <label>Naam kind</label>
+            <input type="text" id="cfg-name" placeholder="Naam">
         </div>
-
-        <div class="setup-section">
-            <h3>🏆 Prestige Badges Overzicht</h3>
-            <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; max-height: 20vh; overflow-y: auto;">
-                <div class="config-item" style="width: 100%; max-width: none;">
-                    <div style="font-weight: bold; color: #E91E63;">Binnen 1 Level (Streak)</div>
-                    <div>🐣 Beginnend Kuikentje | 🐱 Leergierige Miauw | 🐶 Doorzettende Woef | 🐰 Krachtig Konijn</div>
-                </div>
-                <div class="config-item" style="width: 100%; max-width: none;">
-                    <div style="font-weight: bold; color: #2196F3;">Over Meerdere Levels</div>
-                    <div>🐭 Snelle Muis (Snelheid) | 🐻 Sterke Beer (Level 3) | 🦊 Sluwe Vos (Level 5)</div>
-                </div>
-                <div class="config-item" style="width: 100%; max-width: none;">
-                    <div style="font-weight: bold; color: #FF9800;">Levenslang (Prestatie)</div>
-                    <div>🐼 Slimme Panda (Spellen) | 🐯 Perfecte Tijger (Totaal) | 🦁 Leeuwenkoning (Meester)</div>
-                </div>
-            </div>
+        <div class="config-item compact">
+            <label>Tijd (sec)</label>
+            <input type="number" id="cfg-time" value="10" min="3" max="120">
         </div>
-
-        <button id="parent-save-btn">Opslaan & Naar Kindermenu 💾</button>
+        <div class="config-item compact">
+            <label>Vragen/Level</label>
+            <input type="number" id="cfg-total" value="10" min="5" max="100">
+        </div>
+        <div class="config-item compact">
+            <label>Drempel (%)</label>
+            <input type="number" id="cfg-threshold" value="80" min="10" max="100">
+        </div>
+        <div class="config-item compact">
+            <label>Badge Niveau</label>
+            <select id="cfg-badge-difficulty">
+                <option value="easy">Makkelijk</option>
+                <option value="normal" selected>Normaal</option>
+                <option value="hard">Moeilijk</option>
+            </select>
+        </div>
     </div>
+
+    <div class="setup-section" style="margin: 1vh 0; width: 100%;">
+        <h3 style="font-size: clamp(1.2rem, 2.5vh, 2rem); margin-bottom: 1vh;">🏆 Badges Overzicht</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1vh; text-align: left; font-size: clamp(0.8rem, 1.5vh, 1.2rem);">
+            <div style="background: #fce4ec; padding: 1vh; border-radius: 1vh;">
+                <b style="color: #E91E63;">1 Level:</b> 🐣Kuiken 🐱Miauw 🐶Woef 🐰Konijn
+            </div>
+            <div style="background: #e3f2fd; padding: 1vh; border-radius: 1vh;">
+                <b style="color: #2196F3;">Meer Levels:</b> 🐭Muis 🐻Beer 🦊Vos
+            </div>
+            <div style="background: #fff3e0; padding: 1vh; border-radius: 1vh;">
+                <b style="color: #FF9800;">Levenslang:</b> 🐼Panda 🐯Tijger 🦁Leeuw
+            </div>
+        </div>
+    </div>
+
+    <button id="parent-save-btn">Opslaan & Start 💾</button>
 </div>
 
 <div id="setup-container" class="app-container">
