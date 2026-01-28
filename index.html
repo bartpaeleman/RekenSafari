@@ -401,10 +401,11 @@
         <button id="start-level-btn" style="background: #FF9800; color: white; border: none; padding: 2vh 5vw; font-size: clamp(2rem, 4vh, 3rem); border-radius: 4vh; cursor: pointer; box-shadow: 0 0.8vh 0 #E65100;">Start Level ▶️</button>
     </div>
 
-    <div id="badge-notification" style="position: absolute; top: 10%; left: 50%; transform: translateX(-50%); background: #FFF9C4; padding: 3vh; border-radius: 3vh; border: 0.8vh solid #FFD700; box-shadow: 0 2vh 4vh rgba(0,0,0,0.3); z-index: 30; display: none; flex-direction: column; align-items: center; animation: popIn 0.5s ease; text-align: center; width: 80vw; max-width: 500px;">
+    <div id="badge-notification" style="position: absolute; top: 10%; left: 50%; transform: translateX(-50%); background: #FFF9C4; padding: 3vh; border-radius: 3vh; border: 0.8vh solid #FFD700; box-shadow: 0 2vh 4vh rgba(0,0,0,0.3); z-index: 50; display: none; flex-direction: column; align-items: center; animation: popIn 0.5s ease; text-align: center; width: 80vw; max-width: 500px;">
         <div id="badge-notify-name" style="font-size: clamp(2rem, 5vh, 4rem); color: #E65100; font-weight: bold; margin-bottom: 1vh;">Naam</div>
         <div id="badge-notify-desc" style="font-size: clamp(1.2rem, 3vh, 2.5rem); color: #555; margin-bottom: 2vh;">Omschrijving</div>
         <div id="badge-notify-icon" style="font-size: clamp(5rem, 12vh, 10rem); filter: drop-shadow(0 0 10px gold);">🏆</div>
+        <button id="badge-close-btn" style="background: #E65100; color: white; border: none; padding: 1.5vh 4vw; margin-top: 2vh; border-radius: 2vh; font-size: clamp(1.5rem, 3vh, 2.5rem); cursor: pointer; box-shadow: 0 0.5vh 0 #BF360C;">Sluiten ✖️</button>
     </div>
 
     <div class="safari-header">🐘 Rekensafari Avontuur 🦁</div>
@@ -855,7 +856,7 @@
         const award = (id) => {
             if (!stats.earnedBadges.includes(id)) {
                 stats.earnedBadges.push(id);
-                showBadgeNotification(badges[id]);
+                queueBadge(badges[id]);
                 earned = true;
                 saveStats();
             }
@@ -887,16 +888,54 @@
         return earned;
     }
 
-    function showBadgeNotification(badge) {
+    // Badge Queue System
+    let badgeQueue = [];
+    let isBadgeVisible = false;
+    let badgePauseTime = 0;
+
+    function queueBadge(badge) {
+        badgeQueue.push(badge);
+        processBadgeQueue();
+    }
+
+    function processBadgeQueue() {
+        if (isBadgeVisible || badgeQueue.length === 0) return;
+
+        const badge = badgeQueue.shift();
+        isBadgeVisible = true;
+
+        // Pause Game logic
+        clearInterval(timerInterval);
+        badgePauseTime = Date.now();
+
         document.getElementById('badge-notify-icon').textContent = badge.icon;
         document.getElementById('badge-notify-name').textContent = badge.name;
         document.getElementById('badge-notify-desc').textContent = badge.desc;
         badgeNotification.style.display = 'flex';
         playSound('prestige');
-        setTimeout(() => {
-            badgeNotification.style.display = 'none';
-        }, 4000);
     }
+
+    document.getElementById('badge-close-btn').addEventListener('click', () => {
+        badgeNotification.style.display = 'none';
+        isBadgeVisible = false;
+
+        if (badgeQueue.length > 0) {
+            processBadgeQueue();
+        } else {
+            // Resume Check
+            // Only resume if we are in active game state
+            const inLevelStart = levelStartOverlay.style.display === 'flex';
+            const inGameEnd = resultsContainer.style.display === 'block';
+            const inManualPause = pauseOverlay.style.display === 'flex';
+
+            if (!inLevelStart && !inGameEnd && !inManualPause && gameContainer.style.display === 'block') {
+                // Adjust start time to account for pause duration
+                startTime += (Date.now() - badgePauseTime);
+                startTimer(false);
+                answerInput.focus();
+            }
+        }
+    });
 
     function updatePrestigeBadges() {
         // Updates IN-GAME Level Badges (Visual only, transient)
