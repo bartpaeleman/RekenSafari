@@ -16,15 +16,51 @@
             box-sizing: border-box;
         }
 
-        #game-container { background: linear-gradient(to bottom, #ffe0b2, #fff3e0); border: 12px solid #ffcc00; box-shadow: 0 15px 0 #e6b800, 0 25px 50px rgba(0,0,0,0.15); display: none; }
+        #game-container {
+            background: linear-gradient(to bottom, #ffe0b2, #fff3e0);
+            border: 12px solid #ffcc00;
+            box-shadow: 0 15px 0 #e6b800, 0 25px 50px rgba(0,0,0,0.15);
+            display: none;
+            transform-origin: top center;
+            transform: scale(0.9); /* Scale to 90% as requested */
+        }
         #setup-container { background: white; border: 12px solid #4CAF50; box-shadow: 0 15px 0 #2e7d32, 0 25px 50px rgba(0,0,0,0.15); display: none; }
         #results-container { background: white; border: 12px solid #2196F3; box-shadow: 0 15px 0 #1976D2; display: none; }
 
         .safari-header { font-size: 4rem; color: #d32f2f; margin-bottom: 25px; text-shadow: 3px 3px 0 #ffeb3b; }
-        .level-badge { background: #4CAF50; color: white; padding: 10px 30px; border-radius: 50px; font-weight: bold; margin-bottom: 30px; display: inline-block; font-size: 2rem; box-shadow: 0 5px 8px rgba(0,0,0,0.2); }
+
+        .top-bar-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .level-badge { background: #4CAF50; color: white; padding: 10px 30px; border-radius: 50px; font-weight: bold; display: inline-block; font-size: 2rem; box-shadow: 0 5px 8px rgba(0,0,0,0.2); margin: 0; }
 
         #timer-container { width: 100%; height: 40px; background: #c8e6c9; border-radius: 20px; margin: 30px 0; border: 4px solid #81c784; overflow: hidden; }
         #timer-bar { width: 0%; height: 100%; background: #2e7d32; border-radius: 15px; transition: width 0.1s linear; }
+
+        .problem-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            gap: 20px;
+        }
+
+        .prestige-badge {
+            font-size: 8rem;
+            min-width: 140px;
+            opacity: 0;
+            transition: all 0.5s ease;
+            filter: drop-shadow(0 0 10px gold);
+        }
+        .prestige-badge.visible {
+            opacity: 1;
+            transform: scale(1.2);
+        }
 
         .som { font-size: 13rem; margin: 20px 0; color: #333; min-height: 220px; display: flex; align-items: center; justify-content: center; font-weight: bold; line-height: 1; text-shadow: 4px 4px 0 rgba(0,0,0,0.1); }
         input { font-family: 'Comic Sans MS', sans-serif; font-size: 6rem; width: 220px; text-align: center; border: 8px solid #ff9800; border-radius: 30px; outline: none; background: #fffde7; color: #e65100; box-shadow: inset 0 3px 8px rgba(0,0,0,0.1); }
@@ -52,11 +88,11 @@
         .config-item input { font-size: 1.5rem; width: 100px; padding: 8px; border: 3px solid #fbc02d; border-radius: 10px; text-align: center; }
         .config-desc { font-size: 0.9rem; color: #757575; margin-top: 5px; }
 
-        #stop-btn { position: absolute; bottom: 30px; right: 30px; background: #d32f2f; color: white; border: none; padding: 15px 30px; border-radius: 25px; font-size: 1.5rem; font-weight: bold; cursor: pointer; border-bottom: 5px solid #b71c1c; z-index: 10; }
+        #stop-btn { background: #d32f2f; color: white; border: none; padding: 15px 30px; border-radius: 25px; font-size: 1.5rem; font-weight: bold; cursor: pointer; border-bottom: 5px solid #b71c1c; }
         #stop-btn:active { transform: translateY(5px); border-bottom: none; }
 
-        #pause-btn { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: #2196F3; color: white; border: none; padding: 15px 40px; border-radius: 25px; font-size: 1.5rem; font-weight: bold; cursor: pointer; border-bottom: 5px solid #1565C0; z-index: 10; }
-        #pause-btn:active { transform: translateX(-50%) translateY(5px); border-bottom: none; }
+        #pause-btn { background: #2196F3; color: white; border: none; padding: 15px 40px; border-radius: 25px; font-size: 1.5rem; font-weight: bold; cursor: pointer; border-bottom: 5px solid #1565C0; }
+        #pause-btn:active { transform: translateY(5px); border-bottom: none; }
 
         #pause-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 20; display: none; align-items: center; justify-content: center; flex-direction: column; border-radius: 30px; }
         .pause-title { font-size: 4rem; color: #2196F3; margin-bottom: 30px; font-weight: bold; }
@@ -105,7 +141,7 @@
 </div>
 
 <div id="setup-container">
-    <button id="to-parent-btn">⚙️ Instellingen</button>
+    <button id="to-parent-btn">Mama & Papa</button>
     <div class="safari-header">🌍 Safari Planning 🗺️</div>
 
     <div class="setup-section">
@@ -146,15 +182,22 @@
         <button id="resume-btn">Verder Spelen ▶️</button>
     </div>
 
-    <button id="stop-btn">STOP 🛑</button>
-    <button id="pause-btn">Pauze ⏸️</button>
-
     <div class="safari-header">🐘 Rekensafari Avontuur 🦁</div>
-    <div id="level-indicator" class="level-badge">Begin je reis!</div>
+
+    <div class="top-bar-controls">
+        <button id="stop-btn">STOP 🛑</button>
+        <div id="level-indicator" class="level-badge">Begin je reis!</div>
+        <button id="pause-btn">Pauze ⏸️</button>
+    </div>
     
     <div id="timer-container"><div id="timer-bar"></div></div>
     
-    <div class="som" id="problem">Klaar voor de start?</div>
+    <div class="problem-row">
+        <div id="prestige-left" class="prestige-badge"></div>
+        <div class="som" id="problem">Klaar voor de start?</div>
+        <div id="prestige-right" class="prestige-badge"></div>
+    </div>
+
     <input type="number" id="answer" pattern="\d*" inputmode="numeric" autofocus placeholder="?">
     
     <div id="feedback-message"></div>
@@ -181,6 +224,7 @@
     // Level Progress Counters
     let levelQuestionsAnswered = 0;
     let levelCorrectAnswers = 0;
+    let currentStreak = 0;
 
     // Settings
     let selectedOperation = null;
@@ -207,6 +251,8 @@
     const levelOptions = document.querySelectorAll('#level-options .option-btn');
 
     const problemEl = document.getElementById('problem');
+    const prestigeLeft = document.getElementById('prestige-left');
+    const prestigeRight = document.getElementById('prestige-right');
     const answerInput = document.getElementById('answer');
     const animalCollectionEl = document.getElementById('animal-collection');
     const levelIndicator = document.getElementById('level-indicator');
@@ -283,6 +329,8 @@
         currentLevel = 1;
         levelQuestionsAnswered = 0;
         levelCorrectAnswers = 0;
+        currentStreak = 0;
+        updatePrestigeBadges();
         sommenTeller = 0;
         lastigeSommen = [];
         animalCollectionEl.textContent = "";
@@ -411,6 +459,9 @@
     function showLevelUp() {
         levelQuestionsAnswered = 0;
         levelCorrectAnswers = 0;
+        currentStreak = 0;
+        updatePrestigeBadges();
+
         levelIndicator.textContent = `Level ${currentLevel}!`;
         celebrationMessageEl.textContent = "GEFELICITEERD! Volgend Level!";
         playSound('levelup');
@@ -418,6 +469,31 @@
         setTimeout(() => {
             _generateActualProblem();
         }, 3500);
+    }
+
+    function updatePrestigeBadges() {
+        // Calculate streak percentage based on REQUIRED questions for this level
+        // (Streak / MinQuestions) * 100
+        if (configTotalPerLevel <= 0) return;
+
+        let pct = (currentStreak / configTotalPerLevel) * 100;
+        let animal = "";
+
+        if (pct >= 100) animal = "🦁";
+        else if (pct >= 85) animal = "🐼";
+        else if (pct >= 70) animal = "🦊";
+        else if (pct >= 60) animal = "🐭";
+        else if (pct >= 50) animal = "🐶";
+
+        if (animal) {
+            prestigeLeft.textContent = animal;
+            prestigeRight.textContent = animal;
+            prestigeLeft.classList.add('visible');
+            prestigeRight.classList.add('visible');
+        } else {
+            prestigeLeft.classList.remove('visible');
+            prestigeRight.classList.remove('visible');
+        }
     }
 
     function _generateActualProblem() {
@@ -526,6 +602,8 @@
             levelCorrectAnswers++;
             levelQuestionsAnswered++;
             totalQuestionsAnswered++;
+            currentStreak++;
+            updatePrestigeBadges();
             playSound('correct');
 
             let newAnimal = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
@@ -548,6 +626,8 @@
             levelQuestionsAnswered++;
             totalQuestionsAnswered++;
             totalWrong++;
+            currentStreak = 0; // Reset streak on wrong answer
+            updatePrestigeBadges();
 
             lastigeSommen.push({txt: problemEl.innerHTML, ans: currentAnswer});
             feedbackMessageEl.textContent = "Helaas, volgende keer beter!";
