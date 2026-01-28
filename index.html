@@ -103,12 +103,16 @@
             font-size: clamp(2rem, 5vh, 4rem);
             font-weight: normal;
             color: #555;
+            margin: 0;
+            line-height: 1;
         }
 
         .split-body {
             font-size: clamp(4rem, 10vh, 8rem);
             font-weight: bold;
             color: #E65100;
+            margin: 0;
+            line-height: 1;
         }
 
         input {
@@ -1016,7 +1020,7 @@
                 let tot = Math.floor(Math.random() * (maxVal - effectiveMin + 1)) + effectiveMin;
                 let d1 = Math.floor(Math.random() * (tot + 1));
                 currentAnswer = tot - d1;
-                txt = `<span class="split-header">Splits ${tot}:</span><br><span class="split-body">${d1} en ...</span>`;
+                txt = `<span class="split-header">Splits ${tot}:</span><span class="split-body">${d1} en ...</span>`;
                 // Font size handled by classes now
                 problemEl.style.fontSize = "";
             } else if (op === 'add') {
