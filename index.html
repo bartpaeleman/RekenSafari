@@ -275,6 +275,12 @@
         <button id="resume-btn">Verder Spelen ▶️</button>
     </div>
 
+    <div id="level-start-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 25; display: none; align-items: center; justify-content: center; flex-direction: column; border-radius: 3vh;">
+        <div class="safari-header" id="next-level-title">Level Klaar!</div>
+        <div style="font-size: 2rem; color: #4CAF50; margin-bottom: 30px;">Goed gedaan! Klaar voor de volgende?</div>
+        <button id="start-level-btn" style="background: #FF9800; color: white; border: none; padding: 2vh 5vw; font-size: clamp(2rem, 4vh, 3rem); border-radius: 4vh; cursor: pointer; box-shadow: 0 0.8vh 0 #E65100;">Start Level ▶️</button>
+    </div>
+
     <div class="safari-header">🐘 Rekensafari Avontuur 🦁</div>
 
     <div class="top-bar-controls">
@@ -341,6 +347,9 @@
     const parentSaveBtn = document.getElementById('parent-save-btn');
     const toParentBtn = document.getElementById('to-parent-btn');
     const pauseOverlay = document.getElementById('pause-overlay');
+    const levelStartOverlay = document.getElementById('level-start-overlay');
+    const startLevelBtn = document.getElementById('start-level-btn');
+    const nextLevelTitle = document.getElementById('next-level-title');
 
     const operationOptions = document.querySelectorAll('#operation-options .option-btn');
     const levelOptions = document.querySelectorAll('#level-options .option-btn');
@@ -449,8 +458,14 @@
         animalCollectionEl.textContent = "";
         isPaused = false;
         pauseOverlay.style.display = 'none';
+        levelStartOverlay.style.display = 'none';
 
         generateProblem();
+    });
+
+    startLevelBtn.addEventListener('click', () => {
+        levelStartOverlay.style.display = 'none';
+        _generateActualProblem();
     });
 
     // --- Game Logic ---
@@ -490,6 +505,7 @@
         gameContainer.style.display = 'none';
         resultsContainer.style.display = 'block';
         clearInterval(timerInterval);
+        playSound('game_end');
 
         document.getElementById('res-total').textContent = totalQuestionsAnswered;
         document.getElementById('res-correct').textContent = animalsFound;
@@ -533,13 +549,20 @@
 
     function playSound(type) {
         let audio;
-        if (type === 'correct') {
-            audio = new Audio('https://www.soundjay.com/buttons/sounds/button-2.mp3');
-        } else if (type === 'levelup') {
+        // Using existing URLs but mapping them to new logic
+        if (type === 'prestige') {
+            // Prestige Badge (Was LevelUp sound - distinctive bell)
             audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
+        } else if (type === 'level_end') {
+            // Level End (Short positive beep)
+            audio = new Audio('https://www.soundjay.com/buttons/sounds/button-09.mp3');
+        } else if (type === 'game_end') {
+            // Game End (Celebration/Applause placeholder or reuse bell)
+            audio = new Audio('https://www.soundjay.com/human/sounds/applause-01.mp3');
         }
+
         if (audio) {
-            audio.volume = 0.3;
+            audio.volume = 0.2; // Low volume as requested
             audio.play().catch(e => console.log("Sound play error:", e));
         }
     }
@@ -583,17 +606,12 @@
                     showLevelUp();
                 } else {
                     celebrationMessageEl.textContent = "GEFELICITEERD! Je bent klaar!";
-                    playSound('levelup');
+                    playSound('game_end');
                     setTimeout(() => endGame(), 2500);
                 }
                 return;
             } else {
                 // Not enough success yet.
-                // Continue generating problems.
-                // We keep levelQuestionsAnswered accumulating, which means next check happens at N+1.
-                // This allows the child to dilute mistakes with correct answers until Threshold is met.
-
-                // Show encouragement if this was the specific boundary check
                 if (levelQuestionsAnswered === configTotalPerLevel) {
                     helperTextEl.textContent = "Nog even doorzetten om het level te halen!";
                 }
@@ -610,18 +628,18 @@
         updatePrestigeBadges();
 
         levelIndicator.textContent = `Level ${currentLevel}!`;
-        celebrationMessageEl.textContent = "GEFELICITEERD! Volgend Level!";
-        playSound('levelup');
-        setTimeout(() => celebrationMessageEl.textContent = "", 3000);
-        setTimeout(() => {
-            _generateActualProblem();
-        }, 3500);
+        playSound('level_end');
+
+        // Show overlay to wait for manual start
+        nextLevelTitle.textContent = `Level ${currentLevel} Starten!`;
+        startLevelBtn.textContent = `Start Level ${currentLevel} ▶️`;
+        levelStartOverlay.style.display = 'flex';
     }
 
     function updatePrestigeBadges() {
         // Calculate streak percentage based on REQUIRED questions for this level
         // (Streak / MinQuestions) * 100
-        if (configTotalPerLevel <= 0) return;
+        if (configTotalPerLevel <= 0) return false;
 
         let pct = (currentStreak / configTotalPerLevel) * 100;
         let animal = "";
@@ -632,7 +650,16 @@
         else if (pct >= 60) animal = "🐭";
         else if (pct >= 50) animal = "🐶";
 
+        let newBadge = false;
+
         if (animal) {
+            // Check if this specific animal is new/different from what is currently shown?
+            // Actually, we want to know if we JUST crossed a threshold.
+            // Simplified: if the displayed text changes to a new animal, return true.
+            if (prestigeLeft.textContent !== animal) {
+                newBadge = true;
+            }
+
             prestigeLeft.textContent = animal;
             prestigeRight.textContent = animal;
             prestigeLeft.classList.add('visible');
@@ -646,7 +673,11 @@
         } else {
             prestigeLeft.classList.remove('visible');
             prestigeRight.classList.remove('visible');
+            prestigeLeft.textContent = "";
+            prestigeRight.textContent = "";
         }
+
+        return newBadge;
     }
 
     function _generateActualProblem() {
@@ -756,8 +787,11 @@
             levelQuestionsAnswered++;
             totalQuestionsAnswered++;
             currentStreak++;
-            updatePrestigeBadges();
-            playSound('correct');
+
+            if (updatePrestigeBadges()) {
+                playSound('prestige');
+            }
+            // No generic 'correct' sound anymore
 
             const namePart = configName ? ` ${configName}` : "";
             let newAnimal = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
