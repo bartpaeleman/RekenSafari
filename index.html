@@ -267,6 +267,7 @@
             <div style="background: #fce4ec; padding: 0.8vh; border-radius: 1vh; border: 2px solid #E91E63; color: #333;">🐶 Woef</div>
             <div style="background: #fce4ec; padding: 0.8vh; border-radius: 1vh; border: 2px solid #E91E63; color: #333;">🐰 Konijn</div>
             <!-- Session Badges -->
+            <div style="background: #e3f2fd; padding: 0.8vh; border-radius: 1vh; border: 2px solid #2196F3; color: #333;">🐝 Bij</div>
             <div style="background: #e3f2fd; padding: 0.8vh; border-radius: 1vh; border: 2px solid #2196F3; color: #333;">🐭 Muis</div>
             <div style="background: #e3f2fd; padding: 0.8vh; border-radius: 1vh; border: 2px solid #2196F3; color: #333;">🐻 Beer</div>
             <div style="background: #e3f2fd; padding: 0.8vh; border-radius: 1vh; border: 2px solid #2196F3; color: #333;">🦊 Vos</div>
@@ -274,6 +275,7 @@
             <div style="background: #fff3e0; padding: 0.8vh; border-radius: 1vh; border: 2px solid #FF9800; color: #333;">🐼 Panda</div>
             <div style="background: #fff3e0; padding: 0.8vh; border-radius: 1vh; border: 2px solid #FF9800; color: #333;">🐯 Tijger</div>
             <div style="background: #fff3e0; padding: 0.8vh; border-radius: 1vh; border: 2px solid #FF9800; color: #333;">🦁 Leeuw</div>
+            <div style="background: #fff3e0; padding: 0.8vh; border-radius: 1vh; border: 2px solid #FF9800; color: #333;">🦄 Unicorn</div>
         </div>
     </div>
 
@@ -763,18 +765,20 @@
 
     // Badge Definitions
     const badges = {
-        'level_chick':  { id: 'level_chick', icon: '🐣', name: 'Beginnend Kuikentje', desc: 'Een goed begin!', cat: 'level' },
-        'level_cat':    { id: 'level_cat', icon: '🐱', name: 'Leergierige Miauw', desc: 'Op de helft!', cat: 'level' },
-        'level_dog':    { id: 'level_dog', icon: '🐶', name: 'Doorzettende Woef', desc: 'Bijna daar!', cat: 'level' },
-        'level_rabbit': { id: 'level_rabbit', icon: '🐰', name: 'Krachtig Konijn', desc: 'Foutloos Level!', cat: 'level' },
+        'level_chick':  { id: 'level_chick', icon: '🐣', name: 'Beginnend Kuikentje', desc: 'Je eerste stappen gezet!', cat: 'level' },
+        'level_cat':    { id: 'level_cat', icon: '🐱', name: 'Leergierige Miauw', desc: 'Je gaat lekker vooruit!', cat: 'level' },
+        'level_dog':    { id: 'level_dog', icon: '🐶', name: 'Doorzettende Woef', desc: 'Nog even volhouden!', cat: 'level' },
+        'level_rabbit': { id: 'level_rabbit', icon: '🐰', name: 'Krachtig Konijn', desc: 'Alles goed! Super!', cat: 'level' },
 
+        'session_bee':   { id: 'session_bee', icon: '🐝', name: 'Bezige Bij', desc: 'Al 2 levels klaar!', cat: 'session' },
         'session_mouse': { id: 'session_mouse', icon: '🐭', name: 'Snelle Muis', desc: 'Supersnel gerekend!', cat: 'session' },
         'session_bear':  { id: 'session_bear', icon: '🐻', name: 'Sterke Beer', desc: 'Level 3 Bereikt!', cat: 'session' },
         'session_fox':   { id: 'session_fox', icon: '🦊', name: 'Sluwe Vos', desc: 'Level 5 Bereikt!', cat: 'session' },
 
-        'life_panda':    { id: 'life_panda', icon: '🐼', name: 'Slimme Panda', desc: '5 Spellen Gespeeld', cat: 'life' },
-        'life_tiger':    { id: 'life_tiger', icon: '🐯', name: 'Perfecte Tijger', desc: '100 Vragen Goed', cat: 'life' },
-        'life_lion':     { id: 'life_lion', icon: '🦁', name: 'Leeuwenkoning', desc: '500 Vragen Goed', cat: 'life' }
+        'life_panda':    { id: 'life_panda', icon: '🐼', name: 'Slimme Panda', desc: 'Al 5 keer op Safari!', cat: 'life' },
+        'life_tiger':    { id: 'life_tiger', icon: '🐯', name: 'Perfecte Tijger', desc: '100 Vragen opgelost!', cat: 'life' },
+        'life_lion':     { id: 'life_lion', icon: '🦁', name: 'Leeuwenkoning', desc: '500 Vragen! Wauw!', cat: 'life' },
+        'life_unicorn':  { id: 'life_unicorn', icon: '🦄', name: 'Super Unicorn', desc: '1000 Vragen! Legendarisch!', cat: 'life' }
     };
 
     function checkBadges(context) {
@@ -790,19 +794,16 @@
             }
         };
 
-        // Difficulty Multiplier (Higher difficulty = harder to get, or same? Prompt implied scaling.
-        // Let's assume requirements scale UP with difficulty setting, making it harder.)
+        // Difficulty Multiplier
         let mult = 1.0;
         if (configBadgeDifficulty === 'easy') mult = 0.5;
         if (configBadgeDifficulty === 'hard') mult = 1.5;
 
         // Session Badges
         if (context === 'level_complete') {
+            if (sessionStats.levelsCompleted >= 2) award('session_bee');
             if (currentLevel >= 3) award('session_bear');
             if (currentLevel >= 5) award('session_fox');
-            // Mouse logic: if average time was fast (simulated check for now or based on total time?)
-            // For simplicity: if time per question was consistently low (< 5s).
-            // We don't track avg time perfectly yet, let's use a placeholder condition:
             if (configTime <= 5) award('session_mouse');
         }
 
@@ -814,6 +815,7 @@
         // Total Correct (Check always)
         if (stats.totalCorrect >= Math.ceil(100 * mult)) award('life_tiger');
         if (stats.totalCorrect >= Math.ceil(500 * mult)) award('life_lion');
+        if (stats.totalCorrect >= Math.ceil(1000 * mult)) award('life_unicorn');
 
         return earned;
     }
