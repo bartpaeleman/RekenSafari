@@ -223,9 +223,8 @@
             background: white;
             padding: 0.5vh;
             border-radius: 1vh;
-            flex: 0 0 auto;
-            width: 22vw;
-            max-width: 120px;
+            width: 100%;
+            max-width: none;
             text-align: center;
             font-size: clamp(0.7rem, 1.5vh, 1rem);
             color: #333;
@@ -233,6 +232,7 @@
             flex-direction: column;
             justify-content: center;
             border: 2px solid #ccc;
+            box-sizing: border-box;
         }
         .badge-card.level { border-color: #E91E63; background: #fce4ec; }
         .badge-card.session { border-color: #2196F3; background: #e3f2fd; }
@@ -290,7 +290,7 @@
         <!-- Level Badges (Pink) -->
         <div style="margin-bottom: 1.5vh;">
             <div style="font-weight: bold; color: #E91E63; font-size: clamp(0.9rem, 2vh, 1.2rem); margin-bottom: 0.5vh;">Binnen 1 Level (Streak)</div>
-            <div style="display: flex; gap: 1vw; overflow-x: auto; padding-bottom: 0.5vh;">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2vw; padding-bottom: 0.5vh;">
                 <div class="badge-card level"><div>🐣 Kuiken</div><div class="desc">25% goed in level</div></div>
                 <div class="badge-card level"><div>🐱 Miauw</div><div class="desc">50% goed in level</div></div>
                 <div class="badge-card level"><div>🐶 Woef</div><div class="desc">75% goed in level</div></div>
@@ -301,7 +301,7 @@
         <!-- Session Badges (Blue) -->
         <div style="margin-bottom: 1.5vh;">
             <div style="font-weight: bold; color: #2196F3; font-size: clamp(0.9rem, 2vh, 1.2rem); margin-bottom: 0.5vh;">Over Meerdere Levels</div>
-            <div style="display: flex; gap: 1vw; overflow-x: auto; padding-bottom: 0.5vh;">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2vw; padding-bottom: 0.5vh;">
                 <div class="badge-card session"><div>🐝 Bij</div><div class="desc">2 levels voltooid</div></div>
                 <div class="badge-card session"><div>🐭 Muis</div><div class="desc">Snel (< 5s/vraag)</div></div>
                 <div class="badge-card session"><div>🐻 Beer</div><div class="desc">Level 3 bereikt</div></div>
@@ -312,7 +312,7 @@
         <!-- Lifetime Badges (Orange) -->
         <div>
             <div style="font-weight: bold; color: #FF9800; font-size: clamp(0.9rem, 2vh, 1.2rem); margin-bottom: 0.5vh;">Levenslang (Prestatie)</div>
-            <div style="display: flex; gap: 1vw; overflow-x: auto; padding-bottom: 0.5vh;">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2vw; padding-bottom: 0.5vh;">
                 <div class="badge-card life"><div>🐼 Panda</div><div class="desc">5 spellen gespeeld</div></div>
                 <div class="badge-card life"><div>🐯 Tijger</div><div class="desc">100 vragen goed</div></div>
                 <div class="badge-card life"><div>🦁 Leeuw</div><div class="desc">500 vragen goed</div></div>
@@ -341,11 +341,9 @@
     <div class="setup-section">
         <h3>2. Tot welk level?</h3>
         <div class="options-grid" id="level-options">
-            <button class="option-btn" data-value="1">1 (0-10)</button>
-            <button class="option-btn" data-value="2">2 (10-20)</button>
-            <button class="option-btn" data-value="3">3 (15-30)</button>
-            <button class="option-btn" data-value="4">4 (20-40)</button>
-            <button class="option-btn" data-value="5">5 (30-100)</button>
+            <button class="option-btn" data-value="1">Level 1 (0-10)</button>
+            <button class="option-btn" data-value="2">Level 2 (1-20)</button>
+            <button class="option-btn" data-value="3">Level 3 (tot 100)</button>
         </div>
     </div>
     <button id="start-btn">Start Avontuur! 🚀</button>
@@ -812,10 +810,10 @@
         'level_dog':    { id: 'level_dog', icon: '🐶', name: 'Doorzettende Woef', desc: 'Nog even volhouden!', cat: 'level' },
         'level_rabbit': { id: 'level_rabbit', icon: '🐰', name: 'Krachtig Konijn', desc: 'Alles goed! Super!', cat: 'level' },
 
-        'session_bee':   { id: 'session_bee', icon: '🐝', name: 'Bezige Bij', desc: 'Al 2 levels klaar!', cat: 'session' },
+        'session_bee':   { id: 'session_bee', icon: '🐝', name: 'Bezige Bij', desc: 'Level 1 Voltooid!', cat: 'session' },
         'session_mouse': { id: 'session_mouse', icon: '🐭', name: 'Snelle Muis', desc: 'Supersnel gerekend!', cat: 'session' },
-        'session_bear':  { id: 'session_bear', icon: '🐻', name: 'Sterke Beer', desc: 'Level 3 Bereikt!', cat: 'session' },
-        'session_fox':   { id: 'session_fox', icon: '🦊', name: 'Sluwe Vos', desc: 'Level 5 Bereikt!', cat: 'session' },
+        'session_bear':  { id: 'session_bear', icon: '🐻', name: 'Sterke Beer', desc: 'Level 2 Bereikt!', cat: 'session' },
+        'session_fox':   { id: 'session_fox', icon: '🦊', name: 'Sluwe Vos', desc: 'Level 3 Bereikt!', cat: 'session' },
 
         'life_panda':    { id: 'life_panda', icon: '🐼', name: 'Slimme Panda', desc: 'Al 5 keer op Safari!', cat: 'life' },
         'life_tiger':    { id: 'life_tiger', icon: '🐯', name: 'Perfecte Tijger', desc: '100 Vragen opgelost!', cat: 'life' },
@@ -843,9 +841,9 @@
 
         // Session Badges
         if (context === 'level_complete') {
-            if (sessionStats.levelsCompleted >= 2) award('session_bee');
-            if (currentLevel >= 3) award('session_bear');
-            if (currentLevel >= 5) award('session_fox');
+            if (sessionStats.levelsCompleted >= 1) award('session_bee');
+            if (currentLevel >= 2) award('session_bear');
+            if (currentLevel >= 3) award('session_fox');
             if (configTime <= 5) award('session_mouse');
         }
 
@@ -935,10 +933,8 @@
             // Level Definitions
             let minVal, maxVal;
             if (currentLevel === 1) { minVal=0; maxVal=10; }
-            else if (currentLevel === 2) { minVal=10; maxVal=20; }
-            else if (currentLevel === 3) { minVal=15; maxVal=30; }
-            else if (currentLevel === 4) { minVal=20; maxVal=40; }
-            else { minVal=30; maxVal=100; }
+            else if (currentLevel === 2) { minVal=1; maxVal=20; }
+            else { minVal=1; maxVal=100; }
 
             levelIndicator.textContent = `Level ${currentLevel} (${minVal}-${maxVal})`;
             const colors = ["#4CAF50", "#FF9800", "#9C27B0", "#2196F3", "#F44336"];
