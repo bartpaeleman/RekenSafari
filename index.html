@@ -103,12 +103,16 @@
             font-size: clamp(2rem, 5vh, 4rem);
             font-weight: normal;
             color: #555;
+            margin: 0;
+            line-height: 1;
         }
 
         .split-body {
             font-size: clamp(4rem, 10vh, 8rem);
             font-weight: bold;
             color: #E65100;
+            margin: 0;
+            line-height: 1;
         }
 
         input {
@@ -223,9 +227,8 @@
             background: white;
             padding: 0.5vh;
             border-radius: 1vh;
-            flex: 0 0 auto;
-            width: 22vw;
-            max-width: 120px;
+            width: 100%;
+            max-width: none;
             text-align: center;
             font-size: clamp(0.7rem, 1.5vh, 1rem);
             color: #333;
@@ -233,6 +236,7 @@
             flex-direction: column;
             justify-content: center;
             border: 2px solid #ccc;
+            box-sizing: border-box;
         }
         .badge-card.level { border-color: #E91E63; background: #fce4ec; }
         .badge-card.session { border-color: #2196F3; background: #e3f2fd; }
@@ -244,6 +248,20 @@
             margin-top: 0.2vh;
             line-height: 1;
         }
+
+        #reset-stats-btn {
+            background: #ffebee;
+            color: #d32f2f;
+            border: 0.3vh solid #ef5350;
+            padding: 1vh 2vw;
+            font-size: clamp(0.8rem, 1.5vh, 1.2rem);
+            border-radius: 2vh;
+            cursor: pointer;
+            margin-top: 1vh;
+            font-family: inherit;
+            align-self: center;
+        }
+        #reset-stats-btn:hover { background: #ffcdd2; }
     </style>
 </head>
 <body>
@@ -290,7 +308,7 @@
         <!-- Level Badges (Pink) -->
         <div style="margin-bottom: 1.5vh;">
             <div style="font-weight: bold; color: #E91E63; font-size: clamp(0.9rem, 2vh, 1.2rem); margin-bottom: 0.5vh;">Binnen 1 Level (Streak)</div>
-            <div style="display: flex; gap: 1vw; overflow-x: auto; padding-bottom: 0.5vh;">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2vw; padding-bottom: 0.5vh;">
                 <div class="badge-card level"><div>🐣 Kuiken</div><div class="desc">25% goed in level</div></div>
                 <div class="badge-card level"><div>🐱 Miauw</div><div class="desc">50% goed in level</div></div>
                 <div class="badge-card level"><div>🐶 Woef</div><div class="desc">75% goed in level</div></div>
@@ -301,7 +319,7 @@
         <!-- Session Badges (Blue) -->
         <div style="margin-bottom: 1.5vh;">
             <div style="font-weight: bold; color: #2196F3; font-size: clamp(0.9rem, 2vh, 1.2rem); margin-bottom: 0.5vh;">Over Meerdere Levels</div>
-            <div style="display: flex; gap: 1vw; overflow-x: auto; padding-bottom: 0.5vh;">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2vw; padding-bottom: 0.5vh;">
                 <div class="badge-card session"><div>🐝 Bij</div><div class="desc">2 levels voltooid</div></div>
                 <div class="badge-card session"><div>🐭 Muis</div><div class="desc">Snel (< 5s/vraag)</div></div>
                 <div class="badge-card session"><div>🐻 Beer</div><div class="desc">Level 3 bereikt</div></div>
@@ -312,7 +330,7 @@
         <!-- Lifetime Badges (Orange) -->
         <div>
             <div style="font-weight: bold; color: #FF9800; font-size: clamp(0.9rem, 2vh, 1.2rem); margin-bottom: 0.5vh;">Levenslang (Prestatie)</div>
-            <div style="display: flex; gap: 1vw; overflow-x: auto; padding-bottom: 0.5vh;">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2vw; padding-bottom: 0.5vh;">
                 <div class="badge-card life"><div>🐼 Panda</div><div class="desc">5 spellen gespeeld</div></div>
                 <div class="badge-card life"><div>🐯 Tijger</div><div class="desc">100 vragen goed</div></div>
                 <div class="badge-card life"><div>🦁 Leeuw</div><div class="desc">500 vragen goed</div></div>
@@ -322,6 +340,7 @@
     </div>
 
     <button id="parent-save-btn">Opslaan & Start 💾</button>
+    <button id="reset-stats-btn">Scores Wissen ⚠️</button>
 </div>
 
 <div id="setup-container" class="app-container">
@@ -341,11 +360,9 @@
     <div class="setup-section">
         <h3>2. Tot welk level?</h3>
         <div class="options-grid" id="level-options">
-            <button class="option-btn" data-value="1">1 (0-10)</button>
-            <button class="option-btn" data-value="2">2 (10-20)</button>
-            <button class="option-btn" data-value="3">3 (15-30)</button>
-            <button class="option-btn" data-value="4">4 (20-40)</button>
-            <button class="option-btn" data-value="5">5 (30-100)</button>
+            <button class="option-btn" data-value="1">Level 1 (0-10)</button>
+            <button class="option-btn" data-value="2">Level 2 (1-20)</button>
+            <button class="option-btn" data-value="3">Level 3 (tot 100)</button>
         </div>
     </div>
     <button id="start-btn">Start Avontuur! 🚀</button>
@@ -388,10 +405,11 @@
         <button id="start-level-btn" style="background: #FF9800; color: white; border: none; padding: 2vh 5vw; font-size: clamp(2rem, 4vh, 3rem); border-radius: 4vh; cursor: pointer; box-shadow: 0 0.8vh 0 #E65100;">Start Level ▶️</button>
     </div>
 
-    <div id="badge-notification" style="position: absolute; top: 10%; left: 50%; transform: translateX(-50%); background: #FFF9C4; padding: 3vh; border-radius: 3vh; border: 0.8vh solid #FFD700; box-shadow: 0 2vh 4vh rgba(0,0,0,0.3); z-index: 30; display: none; flex-direction: column; align-items: center; animation: popIn 0.5s ease; text-align: center; width: 80vw; max-width: 500px;">
+    <div id="badge-notification" style="position: absolute; top: 10%; left: 50%; transform: translateX(-50%); background: #FFF9C4; padding: 3vh; border-radius: 3vh; border: 0.8vh solid #FFD700; box-shadow: 0 2vh 4vh rgba(0,0,0,0.3); z-index: 50; display: none; flex-direction: column; align-items: center; animation: popIn 0.5s ease; text-align: center; width: 80vw; max-width: 500px;">
         <div id="badge-notify-name" style="font-size: clamp(2rem, 5vh, 4rem); color: #E65100; font-weight: bold; margin-bottom: 1vh;">Naam</div>
         <div id="badge-notify-desc" style="font-size: clamp(1.2rem, 3vh, 2.5rem); color: #555; margin-bottom: 2vh;">Omschrijving</div>
         <div id="badge-notify-icon" style="font-size: clamp(5rem, 12vh, 10rem); filter: drop-shadow(0 0 10px gold);">🏆</div>
+        <button id="badge-close-btn" style="background: #E65100; color: white; border: none; padding: 1.5vh 4vw; margin-top: 2vh; border-radius: 2vh; font-size: clamp(1.5rem, 3vh, 2.5rem); cursor: pointer; box-shadow: 0 0.5vh 0 #BF360C;">Sluiten ✖️</button>
     </div>
 
     <div class="safari-header">🐘 Rekensafari Avontuur 🦁</div>
@@ -540,6 +558,18 @@
         parentScreen.style.display = 'none';
         setupContainer.style.display = 'block';
         updatePersonalizedLabels();
+    });
+
+    document.getElementById('reset-stats-btn').addEventListener('click', () => {
+        if (confirm("⚠️ Weet je zeker dat je alle scores en badges wilt wissen?\nDit kan niet ongedaan worden gemaakt!")) {
+            localStorage.removeItem('safari_stats');
+            stats = {
+                totalGames: 0,
+                totalCorrect: 0,
+                earnedBadges: []
+            };
+            alert("Alle scores zijn gewist.");
+        }
     });
 
     function updatePersonalizedLabels() {
@@ -812,10 +842,10 @@
         'level_dog':    { id: 'level_dog', icon: '🐶', name: 'Doorzettende Woef', desc: 'Nog even volhouden!', cat: 'level' },
         'level_rabbit': { id: 'level_rabbit', icon: '🐰', name: 'Krachtig Konijn', desc: 'Alles goed! Super!', cat: 'level' },
 
-        'session_bee':   { id: 'session_bee', icon: '🐝', name: 'Bezige Bij', desc: 'Al 2 levels klaar!', cat: 'session' },
+        'session_bee':   { id: 'session_bee', icon: '🐝', name: 'Bezige Bij', desc: 'Level 1 Voltooid!', cat: 'session' },
         'session_mouse': { id: 'session_mouse', icon: '🐭', name: 'Snelle Muis', desc: 'Supersnel gerekend!', cat: 'session' },
-        'session_bear':  { id: 'session_bear', icon: '🐻', name: 'Sterke Beer', desc: 'Level 3 Bereikt!', cat: 'session' },
-        'session_fox':   { id: 'session_fox', icon: '🦊', name: 'Sluwe Vos', desc: 'Level 5 Bereikt!', cat: 'session' },
+        'session_bear':  { id: 'session_bear', icon: '🐻', name: 'Sterke Beer', desc: 'Level 2 Bereikt!', cat: 'session' },
+        'session_fox':   { id: 'session_fox', icon: '🦊', name: 'Sluwe Vos', desc: 'Level 3 Bereikt!', cat: 'session' },
 
         'life_panda':    { id: 'life_panda', icon: '🐼', name: 'Slimme Panda', desc: 'Al 5 keer op Safari!', cat: 'life' },
         'life_tiger':    { id: 'life_tiger', icon: '🐯', name: 'Perfecte Tijger', desc: '100 Vragen opgelost!', cat: 'life' },
@@ -830,7 +860,7 @@
         const award = (id) => {
             if (!stats.earnedBadges.includes(id)) {
                 stats.earnedBadges.push(id);
-                showBadgeNotification(badges[id]);
+                queueBadge(badges[id]);
                 earned = true;
                 saveStats();
             }
@@ -843,9 +873,9 @@
 
         // Session Badges
         if (context === 'level_complete') {
-            if (sessionStats.levelsCompleted >= 2) award('session_bee');
-            if (currentLevel >= 3) award('session_bear');
-            if (currentLevel >= 5) award('session_fox');
+            if (sessionStats.levelsCompleted >= 1) award('session_bee');
+            if (currentLevel >= 2) award('session_bear');
+            if (currentLevel >= 3) award('session_fox');
             if (configTime <= 5) award('session_mouse');
         }
 
@@ -862,16 +892,54 @@
         return earned;
     }
 
-    function showBadgeNotification(badge) {
+    // Badge Queue System
+    let badgeQueue = [];
+    let isBadgeVisible = false;
+    let badgePauseTime = 0;
+
+    function queueBadge(badge) {
+        badgeQueue.push(badge);
+        processBadgeQueue();
+    }
+
+    function processBadgeQueue() {
+        if (isBadgeVisible || badgeQueue.length === 0) return;
+
+        const badge = badgeQueue.shift();
+        isBadgeVisible = true;
+
+        // Pause Game logic
+        clearInterval(timerInterval);
+        badgePauseTime = Date.now();
+
         document.getElementById('badge-notify-icon').textContent = badge.icon;
         document.getElementById('badge-notify-name').textContent = badge.name;
         document.getElementById('badge-notify-desc').textContent = badge.desc;
         badgeNotification.style.display = 'flex';
         playSound('prestige');
-        setTimeout(() => {
-            badgeNotification.style.display = 'none';
-        }, 4000);
     }
+
+    document.getElementById('badge-close-btn').addEventListener('click', () => {
+        badgeNotification.style.display = 'none';
+        isBadgeVisible = false;
+
+        if (badgeQueue.length > 0) {
+            processBadgeQueue();
+        } else {
+            // Resume Check
+            // Only resume if we are in active game state
+            const inLevelStart = levelStartOverlay.style.display === 'flex';
+            const inGameEnd = resultsContainer.style.display === 'block';
+            const inManualPause = pauseOverlay.style.display === 'flex';
+
+            if (!inLevelStart && !inGameEnd && !inManualPause && gameContainer.style.display === 'block') {
+                // Adjust start time to account for pause duration
+                startTime += (Date.now() - badgePauseTime);
+                startTimer(false);
+                answerInput.focus();
+            }
+        }
+    });
 
     function updatePrestigeBadges() {
         // Updates IN-GAME Level Badges (Visual only, transient)
@@ -935,10 +1003,8 @@
             // Level Definitions
             let minVal, maxVal;
             if (currentLevel === 1) { minVal=0; maxVal=10; }
-            else if (currentLevel === 2) { minVal=10; maxVal=20; }
-            else if (currentLevel === 3) { minVal=15; maxVal=30; }
-            else if (currentLevel === 4) { minVal=20; maxVal=40; }
-            else { minVal=30; maxVal=100; }
+            else if (currentLevel === 2) { minVal=1; maxVal=20; }
+            else { minVal=1; maxVal=100; }
 
             levelIndicator.textContent = `Level ${currentLevel} (${minVal}-${maxVal})`;
             const colors = ["#4CAF50", "#FF9800", "#9C27B0", "#2196F3", "#F44336"];
@@ -954,7 +1020,7 @@
                 let tot = Math.floor(Math.random() * (maxVal - effectiveMin + 1)) + effectiveMin;
                 let d1 = Math.floor(Math.random() * (tot + 1));
                 currentAnswer = tot - d1;
-                txt = `<span class="split-header">Splits ${tot}:</span><br><span class="split-body">${d1} en ...</span>`;
+                txt = `<span class="split-header">Splits ${tot}:</span><span class="split-body">${d1} en ...</span>`;
                 // Font size handled by classes now
                 problemEl.style.fontSize = "";
             } else if (op === 'add') {
