@@ -1,32 +1,71 @@
-# De Verloren Dieren Sommen Safari
+# Rekensafari: Verloren Dieren Avontuur! 🦁🐘
 
-Voor een kind van 6 of 7 jaar is de overstap van "tellen op de vingers" naar "automatiseren" (het direct weten van het antwoord) een grote stap. Het moet niet voelen als huiswerk, maar als een spelletje waarbij ze succeservaringen opdoet.
-Hier is een concreet voorstel voor een web-app die specifiek gericht is op snelheid en plezier.
-Het Concept: "De Sommen-Safari"
-Om haar te boeien, koppelen we de sommen aan een beloningssysteem. In plaats van alleen een goed/fout melding, verzamelt ze bij elk goed antwoord iets (bijvoorbeeld diamanten of virtuele dieren).
+Rekensafari is een interactieve, educatieve web-applicatie ontworpen om kinderen (groep 3/4/5) te helpen bij het automatiseren van rekensommen. Door middel van gamification, vrolijke thema's en een beloningssysteem met badges, wordt rekenen een spannend avontuur.
 
-**Belangrijkste Functies**
-1. De 'Flow' Methode: Begin met sommen tot 10. Pas als ze deze binnen een bepaalde tijd (bijv. 3 seconden) oplost, speelt ze het volgende "level" (tot 20) vrij.
-2. Visuele Splitsingen: Gebruik een visueel hulpmiddel zoals de splitsstrook of het rekenrek in de interface.
-3. Tijdsdruk zonder Stress: Gebruik een groeiende plant of een lopend diertje in plaats van een tikkende klok. Als ze snel antwoordt, groeit de plant sneller.
+## 🌟 Kenmerken
 
-**De app is opgebouwd rondom parate kennis (direct weten) in plaats van tellen.**
-• Adaptief Level-Systeem: De app start in Level 1 (sommen tot 10). Zodra er 15 sterren zijn verdiend, schakelt de app automatisch over naar Level 2 (sommen tot 20).
-• Gemengde Oefenvormen: Het bevat niet alleen a + b en a - b, maar ook splitsingen (bijv. "Splits 8 in 3 en ?"). Dit is de kernmethode van het Belgische en Nederlandse rekenonderwijs.
-• De "Turbo-Timer": Een visuele balk die de tijd meet.
-• Antwoord binnen 4 seconden = Gouden Ster (beloning voor automatiseren).
-• Antwoord na 4 seconden = Gewone Ster (beloning voor het goede antwoord).
-• Intelligente Foutentrainer: De app onthoudt welke sommen fout gingen of te lang duurden. Deze "lastige sommen" worden automatisch vaker herhaald (om de 4 sommen) totdat ze wel snel gaan.
-• Directe Feedback: Geen "Enter"-toets nodig. De app reageert direct op het juiste cijfer, wat de snelheid en de 'flow' verhoogt.
-• Visueel Beloningssysteem: Een groeiende rij sterren onderaan het scherm die bijhoudt hoeveel succeservaringen ze al heeft gehad.
-Verwerkte elementen uit het proces
+### 🎮 Spelmodi
+De app ondersteunt vijf verschillende rekenoperaties:
+*   **Splitsen**: Visuele weergave van splitsingen (bijv. "Splits 8: 3 en ...").
+*   **Optellen (+) & Aftrekken (-)**.
+*   **Vermenigvuldigen (x) & Delen (:)**: Met slimme getallengeneratie (geen breuken/rest).
 
-**De "Verloren Dieren Safari" Ervaring:**
-• Het Avontuur Start: Bij de eerste som ziet ze Klaar voor de start? en vervolgens verschijnt de eerste rekensom.
-• Dieren Redden: Voor elk goed antwoord "redt" ze een dier, vertegenwoordigd door een vrolijke emoji. "Super! 🦁 gevonden!"
-• Verzamelboekje: De geredde dieren verschijnen onderaan, als een soort "verzamelboekje" met al haar successen.
-• Level Up (Nieuwe Safari Gebieden): Na elke 5 geredde dieren krijgt ze een felicitatie ("GEFELICITEERD! Een nieuwe zone ontdekt!") en gaat ze automatisch naar een "nieuw gebied" (Level 2: sommen tot 20). De moeilijkheidsgraad wordt geleidelijk opgebouwd.
-• Visuele Timer als "Expeditie-meter": De kleurende balk geeft aan hoe snel ze is. Groen = snel, Oranje = goed bezig, Rood = bijna voorbij. Dit voelt als de spanningsboog van een expeditie.
-• Lastige Sommen als "Herhalingsmissies": Sommen die ze fout heeft of te lang over doet, komen later terug als een speciale "Oefen deze nog eens!"-missie, maar dan in een speelse context.
-• Geen "Fout"-geluid: Bewust geen negatieve geluiden toegevoegd om demotiverende elementen te vermijden. Bij een fout wordt de input even rood en krijgt ze de kans het opnieuw te proberen.
-• Achtergrondgeluiden (Optioneel): U kunt zelfs overwegen om een rustig, safari-achtig achtergrondgeluid (vogels, lichte jungle geluiden) toe te voegen om de sfeer te versterken, maar dit vereist externe bestanden.
+### 📊 Drie Moeilijkheidsgraden
+*   **Level 1**: Getallen van 0 tot 10.
+*   **Level 2**: Getallen van 1 tot 20.
+*   **Level 3**: Getallen tot 100.
+
+### 👨‍👩‍👧‍👦 Mama & Papa Scherm (Instellingen)
+Een afgeschermd gedeelte voor ouders om het spel te configureren:
+*   **Naam Kind**: Personaliseert de ervaring.
+*   **Tijd per Vraag**: Instelbaar (bijv. 10 seconden) voor tijdsdruk of rust.
+*   **Vragen per Level**: Bepaal hoe lang een sessie duurt per level.
+*   **Drempel (%)**: Percentage goede antwoorden nodig om naar het volgende level te mogen.
+*   **Badge Niveau**: Pas de moeilijkheid van badges aan (Makkelijk, Normaal, Moeilijk).
+*   **Reset**: Mogelijkheid om alle opgeslagen scores en badges te wissen.
+
+### 🏆 Gamification & Badges
+Het spel bevat een uitgebreid badgesysteem om motivatie te stimuleren. Badges worden getoond als pop-ups (die het spel pauzeren) en worden opgeslagen.
+
+**1. Level Badges (Streak binnen 1 level)**
+*   🐣 **Kuiken**: 25% goed.
+*   🐱 **Miauw**: 50% goed.
+*   🐶 **Woef**: 75% goed.
+*   🐰 **Konijn**: 100% foutloos!
+
+**2. Sessie Badges (Over meerdere levels heen)**
+*   🐝 **Bezige Bij**: Level 1 voltooid.
+*   🐭 **Snelle Muis**: Gemiddeld sneller dan 5 seconden per vraag.
+*   🐻 **Sterke Beer**: Level 2 bereikt.
+*   🦊 **Sluwe Vos**: Level 3 bereikt.
+
+**3. Levenslang Badges (Historische prestaties)**
+*   🐼 **Panda**: 5 spellen gespeeld.
+*   🐯 **Tijger**: 100 vragen in totaal goed beantwoord.
+*   🦁 **Leeuw**: 500 vragen goed.
+*   🦄 **Unicorn**: 1000 vragen goed (Legendarisch!).
+
+### 📱 Responsive Design
+De app is volledig responsive en werkt op desktops, tablets en mobiele telefoons. Het past zich aan aan de schermgrootte en oriëntatie.
+
+---
+
+## 🚀 Hoe te gebruiken
+
+1.  Open `index.html` in een moderne webbrowser (Chrome, Firefox, Safari, Edge).
+2.  **Ouders**: Klik op de "Mama & Papa" knop (of stel dit de eerste keer in) om de naam en voorkeuren in te stellen. Klik op "Opslaan & Start".
+3.  **Kind**:
+    *   Kies wat je wilt oefenen (bijv. Splitsen of Keer).
+    *   Kies tot welk level je wilt gaan.
+    *   Klik op **"Start Avontuur!"**.
+4.  **Spelen**:
+    *   Typ het antwoord in en het wordt direct gecontroleerd (geen Enter nodig).
+    *   Verzamel dieren en badges!
+    *   Als een level klaar is, klik op "Start Level" om verder te gaan.
+
+## 🛠️ Technische Details
+
+*   **Single File Application**: Alles zit in één `index.html` bestand (HTML, CSS, JS). Geen installatie of server nodig.
+*   **Opslag**: Scores en instellingen worden lokaal opgeslagen in de browser (`localStorage`).
+*   **Offline**: Werkt volledig zonder internet (behalve voor de initiële inlaad van de audio-bestanden indien niet gecached).
+*   **Audio**: Gebruikt externe geluidseffecten voor positieve feedback en badges.
