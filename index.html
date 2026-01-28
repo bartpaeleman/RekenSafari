@@ -7,10 +7,9 @@
     <style>
         body { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; text-align: center; background-color: #e6f7ff; padding: 20px; user-select: none; }
 
-        /* Shared Container Styles - 90% Width */
         .app-container {
             width: 90%;
-            max-width: 1200px; /* Cap width for very large screens */
+            max-width: 1200px;
             margin: auto;
             border-radius: 40px;
             padding: 30px;
@@ -18,7 +17,7 @@
         }
 
         #game-container { background: linear-gradient(to bottom, #ffe0b2, #fff3e0); border: 12px solid #ffcc00; box-shadow: 0 15px 0 #e6b800, 0 25px 50px rgba(0,0,0,0.15); display: none; }
-        #setup-container { background: white; border: 12px solid #4CAF50; box-shadow: 0 15px 0 #2e7d32, 0 25px 50px rgba(0,0,0,0.15); display: block; }
+        #setup-container { background: white; border: 12px solid #4CAF50; box-shadow: 0 15px 0 #2e7d32, 0 25px 50px rgba(0,0,0,0.15); display: none; }
         #results-container { background: white; border: 12px solid #2196F3; box-shadow: 0 15px 0 #1976D2; display: none; }
 
         .safari-header { font-size: 4rem; color: #d32f2f; margin-bottom: 25px; text-shadow: 3px 3px 0 #ffeb3b; }
@@ -27,7 +26,7 @@
         #timer-container { width: 100%; height: 40px; background: #c8e6c9; border-radius: 20px; margin: 30px 0; border: 4px solid #81c784; overflow: hidden; }
         #timer-bar { width: 0%; height: 100%; background: #2e7d32; border-radius: 15px; transition: width 0.1s linear; }
 
-        .som { font-size: 10rem; margin: 20px 0; color: #333; min-height: 180px; display: flex; align-items: center; justify-content: center; font-weight: bold; line-height: 1; }
+        .som { font-size: 13rem; margin: 20px 0; color: #333; min-height: 220px; display: flex; align-items: center; justify-content: center; font-weight: bold; line-height: 1; text-shadow: 4px 4px 0 rgba(0,0,0,0.1); }
         input { font-family: 'Comic Sans MS', sans-serif; font-size: 6rem; width: 220px; text-align: center; border: 8px solid #ff9800; border-radius: 30px; outline: none; background: #fffde7; color: #e65100; box-shadow: inset 0 3px 8px rgba(0,0,0,0.1); }
         input:focus { border-color: #ff5722; box-shadow: 0 0 20px rgba(255,87,34,0.5); }
 
@@ -37,7 +36,6 @@
         .focus-mode { border-color: #f44336 !important; background-color: #ffebee !important; }
         .celebration-message { color: #e65100; font-size: 2.5rem; margin-top: 20px; font-weight: bold; }
 
-        /* Setup Screen Styles */
         .setup-section { margin-bottom: 35px; }
         .setup-section h3 { color: #2e7d32; font-size: 2rem; margin-bottom: 15px; }
         .options-grid { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; }
@@ -49,12 +47,25 @@
         #start-btn:active { transform: translateY(8px); box-shadow: none; }
 
         .config-row { display: flex; justify-content: center; gap: 30px; margin-bottom: 30px; flex-wrap: wrap; }
-        .config-item { background: #fffde7; padding: 15px; border-radius: 15px; border: 3px solid #ffeb3b; text-align: left; }
+        .config-item { background: #fffde7; padding: 15px; border-radius: 15px; border: 3px solid #ffeb3b; text-align: left; max-width: 300px; }
         .config-item label { display: block; font-weight: bold; color: #f57f17; font-size: 1.2rem; margin-bottom: 8px; }
         .config-item input { font-size: 1.5rem; width: 100px; padding: 8px; border: 3px solid #fbc02d; border-radius: 10px; text-align: center; }
+        .config-desc { font-size: 0.9rem; color: #757575; margin-top: 5px; }
 
-        #stop-btn { position: absolute; top: 30px; right: 30px; background: #d32f2f; color: white; border: none; padding: 15px 30px; border-radius: 25px; font-size: 1.2rem; font-weight: bold; cursor: pointer; border-bottom: 5px solid #b71c1c; }
+        #stop-btn { position: absolute; bottom: 30px; right: 30px; background: #d32f2f; color: white; border: none; padding: 15px 30px; border-radius: 25px; font-size: 1.5rem; font-weight: bold; cursor: pointer; border-bottom: 5px solid #b71c1c; z-index: 10; }
         #stop-btn:active { transform: translateY(5px); border-bottom: none; }
+
+        #pause-btn { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: #2196F3; color: white; border: none; padding: 15px 40px; border-radius: 25px; font-size: 1.5rem; font-weight: bold; cursor: pointer; border-bottom: 5px solid #1565C0; z-index: 10; }
+        #pause-btn:active { transform: translateX(-50%) translateY(5px); border-bottom: none; }
+
+        #pause-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 20; display: none; align-items: center; justify-content: center; flex-direction: column; border-radius: 30px; }
+        .pause-title { font-size: 4rem; color: #2196F3; margin-bottom: 30px; font-weight: bold; }
+        #resume-btn { background: #4CAF50; color: white; border: none; padding: 20px 60px; font-size: 2.5rem; border-radius: 60px; cursor: pointer; box-shadow: 0 8px 0 #2e7d32; }
+
+        #parent-save-btn { background: #673AB7; color: white; border: none; padding: 15px 40px; font-size: 1.5rem; border-radius: 40px; cursor: pointer; margin-top: 10px; box-shadow: 0 6px 0 #4527A0; font-family: inherit; }
+        #parent-save-btn:active { transform: translateY(6px); box-shadow: none; }
+
+        #to-parent-btn { position: absolute; top: 20px; left: 20px; background: #ddd; border: none; padding: 10px 15px; border-radius: 15px; font-size: 1rem; cursor: pointer; }
 
         .stat-box { font-size: 2rem; margin: 20px 0; color: #333; }
         .stat-val { font-weight: bold; color: #2196F3; }
@@ -64,29 +75,41 @@
 </head>
 <body>
 
+<div id="parent-screen" class="app-container" style="background: white; border: 12px solid #673AB7; box-shadow: 0 15px 0 #4527A0;">
+    <div class="safari-header" style="color: #673AB7; text-shadow: none;">👨‍👩‍👧‍👦 Mama & Papa Scherm</div>
+
+    <div class="setup-section">
+        <h3>Instellingen voor het spel ⚙️</h3>
+        <p style="font-size: 1.2rem; margin-bottom: 25px; color: #555;">Stel hier de moeilijkheidsgraad en regels in.</p>
+
+        <div class="config-row">
+            <div class="config-item">
+                <label>Tijd per Vraag (sec)</label>
+                <input type="number" id="cfg-time" value="10" min="3" max="120">
+                <div class="config-desc">Seconden om een antwoord te geven.</div>
+            </div>
+            <div class="config-item">
+                <label>Min. Vragen / Level</label>
+                <input type="number" id="cfg-total" value="10" min="5" max="100">
+                <div class="config-desc">Minimaal aantal vragen voordat voortgang wordt gecheckt.</div>
+            </div>
+            <div class="config-item">
+                <label>Drempel (%)</label>
+                <input type="number" id="cfg-threshold" value="80" min="10" max="100">
+                <div class="config-desc">% Correct nodig om naar volgend level te gaan.</div>
+            </div>
+        </div>
+
+        <button id="parent-save-btn">Opslaan & Naar Kindermenu 💾</button>
+    </div>
+</div>
+
 <div id="setup-container">
+    <button id="to-parent-btn">⚙️ Instellingen</button>
     <div class="safari-header">🌍 Safari Planning 🗺️</div>
 
     <div class="setup-section">
-        <h3>1. Kies je instellingen ⚙️</h3>
-        <div class="config-row">
-            <div class="config-item">
-                <label>Tijd (sec)</label>
-                <input type="number" id="cfg-time" value="10" min="3" max="60">
-            </div>
-            <div class="config-item">
-                <label>Vragen / Level</label>
-                <input type="number" id="cfg-total" value="10" min="5" max="50">
-            </div>
-            <div class="config-item">
-                <label>Nodig goed</label>
-                <input type="number" id="cfg-threshold" value="8" min="1" max="50">
-            </div>
-        </div>
-    </div>
-
-    <div class="setup-section">
-        <h3>2. Wat wil je oefenen?</h3>
+        <h3>1. Wat wil je oefenen?</h3>
         <div class="options-grid" id="operation-options">
             <button class="option-btn" data-value="split">Splitsen</button>
             <button class="option-btn" data-value="add">Optellen</button>
@@ -96,7 +119,7 @@
         </div>
     </div>
     <div class="setup-section">
-        <h3>3. Tot welk level?</h3>
+        <h3>2. Tot welk level?</h3>
         <div class="options-grid" id="level-options">
             <button class="option-btn" data-value="1">1 (0-10)</button>
             <button class="option-btn" data-value="2">2 (10-20)</button>
@@ -117,8 +140,15 @@
     <button id="restart-btn">Opnieuw Spelen 🔄</button>
 </div>
 
-<div id="game-container">
+<div id="game-container" style="position: relative;">
+    <div id="pause-overlay">
+        <div class="pause-title">Pauze ⏸️</div>
+        <button id="resume-btn">Verder Spelen ▶️</button>
+    </div>
+
     <button id="stop-btn">STOP 🛑</button>
+    <button id="pause-btn">Pauze ⏸️</button>
+
     <div class="safari-header">🐘 Rekensafari Avontuur 🦁</div>
     <div id="level-indicator" class="level-badge">Begin je reis!</div>
     
@@ -134,14 +164,16 @@
 </div>
 
 <script>
-    let animalsFound = 0; // Total Correct answers in game
-    let totalQuestionsAnswered = 0; // Total questions answered (correct + incorrect)
+    let animalsFound = 0;
+    let totalQuestionsAnswered = 0;
     let totalWrong = 0;
 
     let currentLevel = 1;
     let currentAnswer;
     let startTime;
     let timerInterval;
+    let pausedTime = 0;
+    let isPaused = false;
     let lastigeSommen = [];
     let sommenTeller = 0;
     const animalEmojis = ['🦁', '🐘', '🦒', '🐒', '🦓', '🐅', '🐊', '🦛'];
@@ -155,15 +187,21 @@
     let targetMaxLevel = null;
     let configTime = 10;
     let configTotalPerLevel = 10;
-    let configThreshold = 8;
+    let configThreshold = 80; // Percent
 
     // Elements
+    const parentScreen = document.getElementById('parent-screen');
     const setupContainer = document.getElementById('setup-container');
     const gameContainer = document.getElementById('game-container');
     const resultsContainer = document.getElementById('results-container');
     const startBtn = document.getElementById('start-btn');
     const stopBtn = document.getElementById('stop-btn');
+    const pauseBtn = document.getElementById('pause-btn');
+    const resumeBtn = document.getElementById('resume-btn');
     const restartBtn = document.getElementById('restart-btn');
+    const parentSaveBtn = document.getElementById('parent-save-btn');
+    const toParentBtn = document.getElementById('to-parent-btn');
+    const pauseOverlay = document.getElementById('pause-overlay');
 
     const operationOptions = document.querySelectorAll('#operation-options .option-btn');
     const levelOptions = document.querySelectorAll('#level-options .option-btn');
@@ -177,7 +215,36 @@
     const helperTextEl = document.getElementById('helper-text');
     const celebrationMessageEl = document.getElementById('celebration-message');
 
-    // Setup Logic
+    // --- Initialization & Parent Screen ---
+
+    function loadSettings() {
+        if (localStorage.getItem('safari_cfg_time')) {
+            document.getElementById('cfg-time').value = localStorage.getItem('safari_cfg_time');
+            document.getElementById('cfg-total').value = localStorage.getItem('safari_cfg_total');
+            document.getElementById('cfg-threshold').value = localStorage.getItem('safari_cfg_threshold');
+        }
+    }
+
+    parentSaveBtn.addEventListener('click', () => {
+        configTime = parseInt(document.getElementById('cfg-time').value) || 10;
+        configTotalPerLevel = parseInt(document.getElementById('cfg-total').value) || 10;
+        configThreshold = parseInt(document.getElementById('cfg-threshold').value) || 80;
+
+        localStorage.setItem('safari_cfg_time', configTime);
+        localStorage.setItem('safari_cfg_total', configTotalPerLevel);
+        localStorage.setItem('safari_cfg_threshold', configThreshold);
+
+        parentScreen.style.display = 'none';
+        setupContainer.style.display = 'block';
+    });
+
+    toParentBtn.addEventListener('click', () => {
+        setupContainer.style.display = 'none';
+        parentScreen.style.display = 'block';
+    });
+
+    // --- Child Planning Screen ---
+
     function updateStartButton() {
         if (selectedOperation && targetMaxLevel) {
             startBtn.classList.add('active');
@@ -206,10 +273,6 @@
     startBtn.addEventListener('click', () => {
         if (!selectedOperation || !targetMaxLevel) return;
 
-        configTime = parseInt(document.getElementById('cfg-time').value) || 10;
-        configTotalPerLevel = parseInt(document.getElementById('cfg-total').value) || 10;
-        configThreshold = parseInt(document.getElementById('cfg-threshold').value) || 8;
-
         setupContainer.style.display = 'none';
         gameContainer.style.display = 'block';
 
@@ -223,11 +286,40 @@
         sommenTeller = 0;
         lastigeSommen = [];
         animalCollectionEl.textContent = "";
+        isPaused = false;
+        pauseOverlay.style.display = 'none';
 
         generateProblem();
     });
 
+    // --- Game Logic ---
+
     stopBtn.addEventListener('click', () => endGame());
+
+    pauseBtn.addEventListener('click', () => {
+        if (!isPaused) {
+            isPaused = true;
+            clearInterval(timerInterval);
+            // Save remaining time ratio?
+            // For simplicity, we just freeze visuals.
+            // Better: calculate elapsed properly on resume.
+            pausedTime = Date.now();
+            pauseOverlay.style.display = 'flex';
+        }
+    });
+
+    resumeBtn.addEventListener('click', () => {
+        if (isPaused) {
+            isPaused = false;
+            pauseOverlay.style.display = 'none';
+            // Adjust startTime to account for pause duration
+            const durationPaused = Date.now() - pausedTime;
+            startTime += durationPaused;
+            startTimer(false); // resume
+            answerInput.focus();
+        }
+    });
+
     restartBtn.addEventListener('click', () => {
         resultsContainer.style.display = 'none';
         setupContainer.style.display = 'block';
@@ -257,12 +349,15 @@
         }
     }
 
-    function startTimer() {
-        startTime = Date.now();
+    function startTimer(isNew = true) {
+        if (isNew) startTime = Date.now();
         clearInterval(timerInterval);
-        timerBar.style.width = '0%';
-        timerBar.style.backgroundColor = '#2e7d32';
         
+        if (isNew) {
+            timerBar.style.width = '0%';
+            timerBar.style.backgroundColor = '#2e7d32';
+        }
+
         const totalTimeMs = configTime * 1000;
 
         timerInterval = setInterval(() => {
@@ -279,28 +374,35 @@
     }
 
     function generateProblem() {
-        // Check Level Progress
+        // Continuous Evaluation Logic
+        // 1. Have we met the Minimum Questions requirement?
         if (levelQuestionsAnswered >= configTotalPerLevel) {
-            // End of Level Batch
-            if (levelCorrectAnswers >= configThreshold) {
-                // Passed!
+
+            // 2. Calculate Success Percentage
+            const successRate = (levelCorrectAnswers / levelQuestionsAnswered) * 100;
+
+            if (successRate >= configThreshold) {
+                 // Level Up!
                 if (currentLevel < targetMaxLevel) {
                     currentLevel++;
                     showLevelUp();
                 } else {
-                    // Max Level Reached -> Finish Game
                     celebrationMessageEl.textContent = "GEFELICITEERD! Je bent klaar!";
                     playSound('levelup');
                     setTimeout(() => endGame(), 2500);
                 }
+                return;
             } else {
-                // Failed -> Stay in Level
-                levelQuestionsAnswered = 0;
-                levelCorrectAnswers = 0;
-                helperTextEl.textContent = "Bijna! Probeer het level opnieuw.";
-                setTimeout(() => _generateActualProblem(), 1500);
+                // Not enough success yet.
+                // Continue generating problems.
+                // We keep levelQuestionsAnswered accumulating, which means next check happens at N+1.
+                // This allows the child to dilute mistakes with correct answers until Threshold is met.
+
+                // Show encouragement if this was the specific boundary check
+                if (levelQuestionsAnswered === configTotalPerLevel) {
+                    helperTextEl.textContent = "Nog even doorzetten om het level te halen!";
+                }
             }
-            return;
         }
 
         _generateActualProblem();
@@ -319,7 +421,7 @@
     }
 
     function _generateActualProblem() {
-        helperTextEl.textContent = helperTextEl.textContent || ""; // Preserve "Try again" msg if needed
+        helperTextEl.textContent = helperTextEl.textContent || "";
 
         sommenTeller++;
 
@@ -337,53 +439,41 @@
             else if (currentLevel === 2) { minVal=10; maxVal=20; }
             else if (currentLevel === 3) { minVal=15; maxVal=30; }
             else if (currentLevel === 4) { minVal=20; maxVal=40; }
-            else { minVal=30; maxVal=100; } // Level 5
+            else { minVal=30; maxVal=100; }
 
             levelIndicator.textContent = `Level ${currentLevel} (${minVal}-${maxVal})`;
-            // Random color for level badge
             const colors = ["#4CAF50", "#FF9800", "#9C27B0", "#2196F3", "#F44336"];
             levelIndicator.style.background = colors[(currentLevel - 1) % colors.length];
             
             let a, b, txt;
             let op = selectedOperation;
 
-            problemEl.style.fontSize = "80px";
+            problemEl.style.fontSize = "13rem";
 
             if (op === 'split') {
-                // Splitsen: Total (tot) is between min and max
-                // Ensure tot >= 2 for meaningful split
                 let effectiveMin = Math.max(minVal, 2);
                 let tot = Math.floor(Math.random() * (maxVal - effectiveMin + 1)) + effectiveMin;
                 let d1 = Math.floor(Math.random() * (tot + 1));
                 currentAnswer = tot - d1;
                 txt = `Splits ${tot}:<br>${d1} en ...`;
-                problemEl.style.fontSize = "45px";
+                problemEl.style.fontSize = "8rem";
             } else if (op === 'add') {
-                // Sum (result) between min and max
                 currentAnswer = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
-                // a can be anything from 0 to result
                 a = Math.floor(Math.random() * (currentAnswer + 1));
                 b = currentAnswer - a;
                 txt = `${a} + ${b} =`;
             } else if (op === 'subtract') {
-                // Minuend (start number 'a') between min and max
                 a = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
-                // b can be anything from 0 to a
                 b = Math.floor(Math.random() * (a + 1));
                 currentAnswer = a - b;
                 txt = `${a} - ${b} =`;
             } else if (op === 'multiply') {
-                 // Result between min and max
-                 // Find factors.
                  let attempts = 0;
                  do {
-                    a = Math.floor(Math.random() * (maxVal/2)) + 1; // Try 'a'
+                    a = Math.floor(Math.random() * (maxVal/2)) + 1;
                     if (a === 0) a = 1;
-                    // b must be such that minVal <= a*b <= maxVal
-                    // b >= minVal/a  AND b <= maxVal/a
                     let minB = Math.ceil(minVal / a);
                     let maxB = Math.floor(maxVal / a);
-
                     if (maxB >= minB) {
                         b = Math.floor(Math.random() * (maxB - minB + 1)) + minB;
                         currentAnswer = a * b;
@@ -393,20 +483,15 @@
                  } while (attempts < 50);
 
                  if (attempts >= 50) {
-                     // Fallback if no valid found easily
                      a = 2; b = Math.floor(minVal/2) + 1; currentAnswer = a*b;
                  }
                  txt = `${a} x ${b} =`;
 
             } else if (op === 'divide') {
-                // Dividend (a) between min and max
-                // Find a number in range that has divisors
                 let attempts = 0;
                 do {
                     a = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
-                    if (a < 1) a = 1; // avoid 0 div?
-                    // Find random divisor
-                    // factors of a?
+                    if (a < 1) a = 1;
                     let factors = [];
                     for(let i=1; i<=a; i++) {
                         if (a % i === 0) factors.push(i);
@@ -437,52 +522,48 @@
             let elapsed = Date.now() - startTime;
             clearInterval(timerInterval);
             
-            // Logic Safety Check:
-            // Only increment correctness if we haven't already exceeded the question count.
-            // (Shouldn't happen with correct flow, but robust to "input spam" or logic bugs).
-            if (levelQuestionsAnswered < configTotalPerLevel) {
-                animalsFound++;
-                levelCorrectAnswers++;
-                levelQuestionsAnswered++;
-                totalQuestionsAnswered++;
-                playSound('correct');
+            animalsFound++;
+            levelCorrectAnswers++;
+            levelQuestionsAnswered++;
+            totalQuestionsAnswered++;
+            playSound('correct');
 
-                let newAnimal = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
-                let feedbackText = "Super! " + newAnimal + " gevonden!";
-                if (elapsed < (configTime * 1000) * 0.4) {
-                    feedbackText = "Wauw, supersnel! " + newAnimal + " gered!";
-                }
-                feedbackMessageEl.textContent = feedbackText;
-                animalCollectionEl.textContent += newAnimal;
-
-                if (animalCollectionEl.textContent.length > 20) animalCollectionEl.textContent = animalCollectionEl.textContent.substring(2);
-
-                setTimeout(() => {
-                    feedbackMessageEl.textContent = "";
-                    generateProblem();
-                }, 600);
+            let newAnimal = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
+            let feedbackText = "Super! " + newAnimal + " gevonden!";
+            if (elapsed < (configTime * 1000) * 0.4) {
+                feedbackText = "Wauw, supersnel! " + newAnimal + " gered!";
             }
+            feedbackMessageEl.textContent = feedbackText;
+            animalCollectionEl.textContent += newAnimal;
+
+            if (animalCollectionEl.textContent.length > 20) animalCollectionEl.textContent = animalCollectionEl.textContent.substring(2);
+
+            setTimeout(() => {
+                feedbackMessageEl.textContent = "";
+                generateProblem();
+            }, 600);
+
         } else if (answerInput.value.length >= currentAnswer.toString().length && val !== currentAnswer) {
             // Wrong answer
-            if (levelQuestionsAnswered < configTotalPerLevel) {
-                levelQuestionsAnswered++;
-                totalQuestionsAnswered++;
-                totalWrong++;
+            levelQuestionsAnswered++;
+            totalQuestionsAnswered++;
+            totalWrong++;
 
-                lastigeSommen.push({txt: problemEl.innerHTML, ans: currentAnswer});
-                feedbackMessageEl.textContent = "Helaas, volgende keer beter!";
-                feedbackMessageEl.style.color = "#d32f2f";
-                answerInput.classList.add('focus-mode');
-                setTimeout(() => {
-                    answerInput.classList.remove('focus-mode');
-                    answerInput.value = '';
-                    feedbackMessageEl.textContent = "";
-                    feedbackMessageEl.style.color = "#4CAF50";
-                    generateProblem();
-                }, 1000);
-            }
+            lastigeSommen.push({txt: problemEl.innerHTML, ans: currentAnswer});
+            feedbackMessageEl.textContent = "Helaas, volgende keer beter!";
+            feedbackMessageEl.style.color = "#d32f2f";
+            answerInput.classList.add('focus-mode');
+            setTimeout(() => {
+                answerInput.classList.remove('focus-mode');
+                answerInput.value = '';
+                feedbackMessageEl.textContent = "";
+                feedbackMessageEl.style.color = "#4CAF50";
+                generateProblem();
+            }, 1000);
         }
     });
+
+    loadSettings();
 </script>
 </body>
 </html>
