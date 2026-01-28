@@ -5,31 +5,292 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rekensafari: Verloren Dieren Avontuur!</title>
     <style>
-        body { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; text-align: center; background-color: #e6f7ff; padding: 20px; user-select: none; }
-        #game-container { background: linear-gradient(to bottom, #ffe0b2, #fff3e0); border-radius: 40px; padding: 30px; max-width: 600px; margin: auto; border: 12px solid #ffcc00; box-shadow: 0 15px 0 #e6b800, 0 25px 50px rgba(0,0,0,0.15); }
-        .safari-header { font-size: 2.8rem; color: #d32f2f; margin-bottom: 15px; text-shadow: 2px 2px 0 #ffeb3b; }
-        .level-badge { background: #4CAF50; color: white; padding: 8px 20px; border-radius: 50px; font-weight: bold; margin-bottom: 20px; display: inline-block; font-size: 1.3rem; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-        #timer-container { width: 100%; height: 28px; background: #c8e6c9; border-radius: 15px; margin: 25px 0; border: 3px solid #81c784; overflow: hidden; }
-        #timer-bar { width: 0%; height: 100%; background: #2e7d32; border-radius: 12px; transition: width 0.1s linear; }
-        .som { font-size: 80px; margin: 15px 0; color: #333; min-height: 120px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        input { font-family: 'Comic Sans MS', sans-serif; font-size: 55px; width: 140px; text-align: center; border: 6px solid #ff9800; border-radius: 25px; outline: none; background: #fffde7; color: #e65100; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
-        input:focus { border-color: #ff5722; box-shadow: 0 0 15px rgba(255,87,34,0.5); }
-        #feedback-message { font-size: 1.8rem; color: #4CAF50; height: 35px; margin: 15px 0; font-weight: bold; }
-        #animal-collection { font-size: 3rem; margin-top: 25px; min-height: 50px; word-wrap: break-word; line-height: 1.2; }
-        #helper-text { font-size: 1.1rem; color: #757575; margin-top: 10px; height: 25px; }
+        /* Responsive Reset & Base */
+        body { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; text-align: center; background-color: #e6f7ff; margin: 0; padding: 0; user-select: none; height: 100vh; width: 100vw; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+
+        .app-container {
+            width: 95vw;
+            height: 95vh;
+            max-width: none;
+            margin: auto;
+            border-radius: 3vh;
+            padding: 2vh 3vw;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow-y: auto;
+        }
+
+        /* Specific Container Styles */
+        #game-container {
+            background: linear-gradient(to bottom, #ffe0b2, #fff3e0);
+            border: 0.8vh solid #ffcc00;
+            box-shadow: 0 1vh 0 #e6b800, 0 2vh 4vh rgba(0,0,0,0.15);
+            display: none;
+            justify-content: space-between;
+        }
+        #setup-container {
+            background: white;
+            border: 0.8vh solid #4CAF50;
+            box-shadow: 0 1vh 0 #2e7d32, 0 2vh 4vh rgba(0,0,0,0.15);
+            display: none;
+            justify-content: center;
+        }
+        #results-container {
+            background: white;
+            border: 0.8vh solid #2196F3;
+            box-shadow: 0 1vh 0 #1976D2;
+            display: none;
+            justify-content: center;
+        }
+
+        /* Scalable Typography & Elements */
+        .safari-header { font-size: clamp(2rem, 5vh, 4rem); color: #d32f2f; margin-bottom: 2vh; text-shadow: 2px 2px 0 #ffeb3b; line-height: 1.2; flex-shrink: 0; }
+
+        .top-bar-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 1vh;
+            flex-shrink: 0;
+        }
+
+        .level-badge { background: #4CAF50; color: white; padding: 1vh 2vw; border-radius: 4vh; font-weight: bold; display: inline-block; font-size: clamp(1rem, 2.5vh, 2rem); box-shadow: 0 0.5vh 1vh rgba(0,0,0,0.2); margin: 0; }
+
+        #timer-container { width: 100%; height: 3vh; background: #c8e6c9; border-radius: 2vh; margin: 1.5vh 0; border: 0.5vh solid #81c784; overflow: hidden; flex-shrink: 0; }
+        #timer-bar { width: 0%; height: 100%; background: #2e7d32; border-radius: 1.5vh; transition: width 0.1s linear; }
+
+        .problem-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            gap: 2vw;
+            flex-grow: 1; /* Allow to expand */
+            min-height: 20vh;
+        }
+
+        .prestige-badge {
+            font-size: clamp(3rem, 10vh, 8rem);
+            min-width: 10vw;
+            opacity: 0;
+            transition: all 0.5s ease;
+            filter: drop-shadow(0 0 10px gold);
+        }
+        .prestige-badge.visible {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        .som {
+            font-family: Tahoma, Verdana, Arial, sans-serif;
+            font-size: clamp(4rem, 15vh, 10rem);
+            margin: 1vh 0;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            line-height: 1;
+            text-shadow: 0.3vh 0.3vh 0 rgba(0,0,0,0.1);
+        }
+
+        input {
+            font-family: 'Comic Sans MS', sans-serif;
+            font-size: clamp(3rem, 8vh, 6rem);
+            width: 30vw;
+            max-width: 300px;
+            text-align: center;
+            border: 0.8vh solid #ff9800;
+            border-radius: 2vh;
+            outline: none;
+            background: #fffde7;
+            color: #e65100;
+            box-shadow: inset 0 0.5vh 1vh rgba(0,0,0,0.1);
+            margin-bottom: 1vh;
+            flex-shrink: 0;
+        }
+        input:focus { border-color: #ff5722; box-shadow: 0 0 2vh rgba(255,87,34,0.5); }
+
+        #feedback-message { font-size: clamp(1.5rem, 3vh, 3rem); color: #4CAF50; height: 4vh; margin: 1vh 0; font-weight: bold; flex-shrink: 0; }
+        #animal-collection { font-size: clamp(2rem, 5vh, 5rem); margin-top: 2vh; min-height: 6vh; word-wrap: break-word; line-height: 1.2; flex-shrink: 0; }
+        #helper-text { font-size: clamp(1rem, 2vh, 1.5rem); color: #757575; margin-top: 1vh; height: 3vh; flex-shrink: 0; }
         .focus-mode { border-color: #f44336 !important; background-color: #ffebee !important; }
-        .celebration-message { color: #e65100; font-size: 1.8rem; margin-top: 15px; font-weight: bold; }
+        .celebration-message { color: #e65100; font-size: clamp(2rem, 4vh, 3rem); margin-top: 2vh; font-weight: bold; }
+
+        .setup-section { margin-bottom: 3vh; flex-shrink: 0; }
+        .setup-section h3 { color: #2e7d32; font-size: clamp(1.5rem, 3vh, 2.5rem); margin-bottom: 1.5vh; }
+        .options-grid { display: flex; flex-wrap: wrap; gap: 1.5vh; justify-content: center; }
+        .option-btn {
+            background: #e8f5e9;
+            border: 0.4vh solid #81c784;
+            border-radius: 2vh;
+            padding: 1.5vh 3vw;
+            font-size: clamp(1rem, 2vh, 1.5rem);
+            cursor: pointer;
+            font-family: inherit;
+            color: #2e7d32;
+            transition: all 0.2s;
+        }
+        .option-btn:hover { background: #c8e6c9; transform: translateY(-0.3vh); }
+        .option-btn.selected { background: #4CAF50; color: white; border-color: #2e7d32; box-shadow: 0 0.5vh 0 #1b5e20; }
+
+        #start-btn {
+            background: #ff9800;
+            color: white;
+            border: none;
+            padding: 2vh 5vw;
+            font-size: clamp(1.5rem, 3vh, 3rem);
+            border-radius: 4vh;
+            cursor: pointer;
+            margin-top: 3vh;
+            box-shadow: 0 0.8vh 0 #e65100;
+            font-family: inherit;
+            opacity: 0.5;
+            pointer-events: none;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        #start-btn.active { opacity: 1; pointer-events: all; }
+        #start-btn:active { transform: translateY(0.8vh); box-shadow: none; }
+
+        .config-row { display: flex; justify-content: center; gap: 30px; margin-bottom: 30px; flex-wrap: wrap; }
+        .config-item { background: #fffde7; padding: 15px; border-radius: 15px; border: 3px solid #ffeb3b; text-align: left; max-width: 300px; }
+        .config-item label { display: block; font-weight: bold; color: #f57f17; font-size: 1.2rem; margin-bottom: 8px; }
+        .config-item input { font-size: 1.5rem; width: 100px; padding: 8px; border: 3px solid #fbc02d; border-radius: 10px; text-align: center; }
+        .config-desc { font-size: 0.9rem; color: #757575; margin-top: 5px; }
+
+        #stop-btn { background: #d32f2f; color: white; border: none; padding: 1.5vh 3vw; border-radius: 3vh; font-size: clamp(1rem, 2vh, 1.5rem); font-weight: bold; cursor: pointer; border-bottom: 0.5vh solid #b71c1c; }
+        #stop-btn:active { transform: translateY(0.5vh); border-bottom: none; }
+
+        #pause-btn { background: #2196F3; color: white; border: none; padding: 1.5vh 3vw; border-radius: 3vh; font-size: clamp(1rem, 2vh, 1.5rem); font-weight: bold; cursor: pointer; border-bottom: 0.5vh solid #1565C0; }
+        #pause-btn:active { transform: translateY(0.5vh); border-bottom: none; }
+
+        #pause-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 20; display: none; align-items: center; justify-content: center; flex-direction: column; border-radius: 3vh; }
+        .pause-title { font-size: clamp(3rem, 6vh, 5rem); color: #2196F3; margin-bottom: 3vh; font-weight: bold; }
+        #resume-btn { background: #4CAF50; color: white; border: none; padding: 2vh 5vw; font-size: clamp(2rem, 4vh, 3rem); border-radius: 4vh; cursor: pointer; box-shadow: 0 0.8vh 0 #2e7d32; }
+
+        #parent-save-btn { background: #673AB7; color: white; border: none; padding: 1.5vh 4vw; font-size: clamp(1rem, 2.5vh, 2rem); border-radius: 4vh; cursor: pointer; margin-top: 1vh; box-shadow: 0 0.6vh 0 #4527A0; font-family: inherit; }
+        #parent-save-btn:active { transform: translateY(0.6vh); box-shadow: none; }
+
+        #to-parent-btn { position: absolute; top: 2vh; left: 2vw; background: #ddd; border: none; padding: 1vh 1.5vw; border-radius: 1.5vh; font-size: clamp(0.8rem, 1.5vh, 1.2rem); cursor: pointer; }
+
+        .stat-box { font-size: clamp(1.5rem, 3vh, 2.5rem); margin: 2vh 0; color: #333; }
+        .stat-val { font-weight: bold; color: #2196F3; }
+        #restart-btn { background: #2196F3; color: white; border: none; padding: 2vh 5vw; font-size: clamp(1.5rem, 3vh, 2.5rem); border-radius: 4vh; cursor: pointer; margin-top: 3vh; box-shadow: 0 0.8vh 0 #0d47a1; }
+        #restart-btn:active { transform: translateY(0.8vh); box-shadow: none; }
     </style>
 </head>
 <body>
 
-<div id="game-container">
+<div id="parent-screen" class="app-container" style="background: white; border: 12px solid #673AB7; box-shadow: 0 15px 0 #4527A0;">
+    <div class="safari-header" style="color: #673AB7; text-shadow: none;">👨‍👩‍👧‍👦 Mama & Papa Scherm</div>
+
+    <div class="setup-section">
+        <h3>Instellingen voor het spel ⚙️</h3>
+        <p style="font-size: 1.2rem; margin-bottom: 25px; color: #555;">Stel hier de moeilijkheidsgraad en regels in.</p>
+
+        <div class="config-row">
+            <div class="config-item">
+                <label>Naam van het kind</label>
+                <input type="text" id="cfg-name" placeholder="Naam" style="width: 180px;">
+                <div class="config-desc">Wordt gebruikt in het spel.</div>
+            </div>
+            <div class="config-item">
+                <label>Tijd per Vraag (sec)</label>
+                <input type="number" id="cfg-time" value="10" min="3" max="120">
+                <div class="config-desc">Seconden om een antwoord te geven.</div>
+            </div>
+            <div class="config-item">
+                <label>Min. Vragen / Level</label>
+                <input type="number" id="cfg-total" value="10" min="5" max="100">
+                <div class="config-desc">Minimaal aantal vragen voordat voortgang wordt gecheckt.</div>
+            </div>
+            <div class="config-item">
+                <label>Drempel (%)</label>
+                <input type="number" id="cfg-threshold" value="80" min="10" max="100">
+                <div class="config-desc">% Correct nodig om naar volgend level te gaan.</div>
+            </div>
+        </div>
+
+        <button id="parent-save-btn">Opslaan & Naar Kindermenu 💾</button>
+    </div>
+</div>
+
+<div id="setup-container" class="app-container">
+    <button id="to-parent-btn">Mama & Papa</button>
+    <div class="safari-header" id="setup-header">We gaan samen op Safari! 🌍</div>
+
+    <div class="setup-section">
+        <h3>1. Wat wil je oefenen?</h3>
+        <div class="options-grid" id="operation-options">
+            <button class="option-btn" data-value="split">Splitsen</button>
+            <button class="option-btn" data-value="add">Optellen</button>
+            <button class="option-btn" data-value="subtract">Aftrekken</button>
+            <button class="option-btn" data-value="multiply">Keer (x)</button>
+            <button class="option-btn" data-value="divide">Delen (:)</button>
+        </div>
+    </div>
+    <div class="setup-section">
+        <h3>2. Tot welk level?</h3>
+        <div class="options-grid" id="level-options">
+            <button class="option-btn" data-value="1">1 (0-10)</button>
+            <button class="option-btn" data-value="2">2 (10-20)</button>
+            <button class="option-btn" data-value="3">3 (15-30)</button>
+            <button class="option-btn" data-value="4">4 (20-40)</button>
+            <button class="option-btn" data-value="5">5 (30-100)</button>
+        </div>
+    </div>
+    <button id="start-btn">Start Avontuur! 🚀</button>
+</div>
+
+<div id="results-container" class="app-container">
+    <div class="safari-header">Deze Safari is afgelopen! 🏁</div>
+
+    <div id="highest-badge-container" style="margin: 20px 0; min-height: 100px;">
+        <!-- Highest badge will go here -->
+    </div>
+
+    <div id="encouragement-text" style="font-size: 2rem; color: #E91E63; margin: 20px 40px; font-weight: bold; line-height: 1.4;">
+        <!-- Encouraging text goes here -->
+    </div>
+
+    <div class="stat-box">Totaal gemaakt: <span id="res-total" class="stat-val">0</span></div>
+    <div class="stat-box">Goed: <span id="res-correct" class="stat-val" style="color: #4CAF50">0</span></div>
+    <div class="stat-box">Fout: <span id="res-wrong" class="stat-val" style="color: #d32f2f">0</span></div>
+
+    <div class="stat-box" style="margin-top: 40px;">
+        <div id="res-animals-label" style="font-size: 1.8rem; margin-bottom: 10px;">Dieren:</div>
+        <div id="res-animals" style="font-size: 5rem; line-height: 1.2; word-wrap: break-word;"></div>
+    </div>
+
+    <button id="restart-btn">Opnieuw Spelen 🔄</button>
+</div>
+
+<div id="game-container" class="app-container" style="position: relative;">
+    <div id="pause-overlay">
+        <div class="pause-title">Pauze ⏸️</div>
+        <button id="resume-btn">Verder Spelen ▶️</button>
+    </div>
+
     <div class="safari-header">🐘 Rekensafari Avontuur 🦁</div>
-    <div id="level-indicator" class="level-badge">Begin je reis!</div>
+
+    <div class="top-bar-controls">
+        <button id="stop-btn">STOP 🛑</button>
+        <div id="level-indicator" class="level-badge">Begin je reis!</div>
+        <button id="pause-btn">Pauze ⏸️</button>
+    </div>
     
     <div id="timer-container"><div id="timer-bar"></div></div>
     
-    <div class="som" id="problem">Klaar voor de start?</div>
+    <div class="problem-row">
+        <div id="prestige-left" class="prestige-badge"></div>
+        <div class="som" id="problem">Klaar voor de start?</div>
+        <div id="prestige-right" class="prestige-badge"></div>
+    </div>
+
     <input type="number" id="answer" pattern="\d*" inputmode="numeric" autofocus placeholder="?">
     
     <div id="feedback-message"></div>
@@ -40,15 +301,53 @@
 
 <script>
     let animalsFound = 0;
+    let totalQuestionsAnswered = 0;
+    let totalWrong = 0;
+
+    let currentLevel = 1;
     let currentAnswer;
-    let currentLevel = 1; // 1 = tot 10, 2 = tot 20
     let startTime;
     let timerInterval;
-    let lastigeSommen = []; // Opslag voor moeilijke sommen
+    let pausedTime = 0;
+    let isPaused = false;
+    let lastigeSommen = [];
     let sommenTeller = 0;
-    const animalEmojis = ['🦁', '🐘', '🦒', '🐒', '🦓', '🐅', '🐊', '🦛']; // Meer dieren!
+    const animalEmojis = ['🦁', '🐘', '🦒', '🐒', '🦓', '🐅', '🐊', '🦛'];
+
+    // Level Progress Counters
+    let levelQuestionsAnswered = 0;
+    let levelCorrectAnswers = 0;
+    let currentStreak = 0;
+    let highestBadgeEarned = null; // Track best badge
+
+    // Settings
+    let selectedOperation = null;
+    let targetMaxLevel = null;
+    let configName = "";
+    let configTime = 10;
+    let configTotalPerLevel = 10;
+    let configThreshold = 80; // Percent
+
+    // Elements
+    const parentScreen = document.getElementById('parent-screen');
+    const setupContainer = document.getElementById('setup-container');
+    const gameContainer = document.getElementById('game-container');
+    const resultsContainer = document.getElementById('results-container');
+    const startBtn = document.getElementById('start-btn');
+    const stopBtn = document.getElementById('stop-btn');
+    const pauseBtn = document.getElementById('pause-btn');
+    const resumeBtn = document.getElementById('resume-btn');
+    const restartBtn = document.getElementById('restart-btn');
+    const parentSaveBtn = document.getElementById('parent-save-btn');
+    const toParentBtn = document.getElementById('to-parent-btn');
+    const pauseOverlay = document.getElementById('pause-overlay');
+
+    const operationOptions = document.querySelectorAll('#operation-options .option-btn');
+    const levelOptions = document.querySelectorAll('#level-options .option-btn');
 
     const problemEl = document.getElementById('problem');
+    const prestigeLeft = document.getElementById('prestige-left');
+    const prestigeRight = document.getElementById('prestige-right');
     const answerInput = document.getElementById('answer');
     const animalCollectionEl = document.getElementById('animal-collection');
     const levelIndicator = document.getElementById('level-indicator');
@@ -57,97 +356,387 @@
     const helperTextEl = document.getElementById('helper-text');
     const celebrationMessageEl = document.getElementById('celebration-message');
 
-    function playSound(type) {
-        let audio;
-        if (type === 'correct') {
-            audio = new Audio('https://www.soundjay.com/buttons/sounds/button-2.mp3'); // Vrolijk geluid
-        } else if (type === 'levelup') {
-            audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3'); // Bel bij level-up
+    // --- Initialization & Parent Screen ---
+
+    function loadSettings() {
+        if (localStorage.getItem('safari_cfg_name')) {
+            configName = localStorage.getItem('safari_cfg_name');
+            document.getElementById('cfg-name').value = configName;
+            updatePersonalizedLabels();
         }
-        if (audio) {
-            audio.volume = 0.3; // Niet te hard
-            audio.play().catch(e => console.log("Sound play error:", e)); // Foutafhandeling
+        if (localStorage.getItem('safari_cfg_time')) {
+            document.getElementById('cfg-time').value = localStorage.getItem('safari_cfg_time');
+            document.getElementById('cfg-total').value = localStorage.getItem('safari_cfg_total');
+            document.getElementById('cfg-threshold').value = localStorage.getItem('safari_cfg_threshold');
         }
     }
 
-    function startTimer() {
-        startTime = Date.now();
+    parentSaveBtn.addEventListener('click', () => {
+        configName = document.getElementById('cfg-name').value.trim();
+        configTime = parseInt(document.getElementById('cfg-time').value) || 10;
+        configTotalPerLevel = parseInt(document.getElementById('cfg-total').value) || 10;
+        configThreshold = parseInt(document.getElementById('cfg-threshold').value) || 80;
+
+        localStorage.setItem('safari_cfg_name', configName);
+        localStorage.setItem('safari_cfg_time', configTime);
+        localStorage.setItem('safari_cfg_total', configTotalPerLevel);
+        localStorage.setItem('safari_cfg_threshold', configThreshold);
+
+        parentScreen.style.display = 'none';
+        setupContainer.style.display = 'block';
+        updatePersonalizedLabels();
+    });
+
+    function updatePersonalizedLabels() {
+        const setupHeader = document.getElementById('setup-header');
+        if (configName) {
+            setupHeader.textContent = `We gaan samen op Safari, ${configName}! 🌍`;
+        } else {
+            setupHeader.textContent = "We gaan samen op Safari! 🌍";
+        }
+    }
+
+    toParentBtn.addEventListener('click', () => {
+        setupContainer.style.display = 'none';
+        parentScreen.style.display = 'block';
+    });
+
+    // --- Child Planning Screen ---
+
+    function updateStartButton() {
+        if (selectedOperation && targetMaxLevel) {
+            startBtn.classList.add('active');
+            startBtn.disabled = false;
+        }
+    }
+
+    operationOptions.forEach(btn => {
+        btn.addEventListener('click', () => {
+            operationOptions.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedOperation = btn.dataset.value;
+            updateStartButton();
+        });
+    });
+
+    levelOptions.forEach(btn => {
+        btn.addEventListener('click', () => {
+            levelOptions.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            targetMaxLevel = parseInt(btn.dataset.value);
+            updateStartButton();
+        });
+    });
+
+    startBtn.addEventListener('click', () => {
+        if (!selectedOperation || !targetMaxLevel) return;
+
+        setupContainer.style.display = 'none';
+        gameContainer.style.display = 'block';
+
+        // Reset Game State
+        animalsFound = 0;
+        totalQuestionsAnswered = 0;
+        totalWrong = 0;
+        currentLevel = 1;
+        levelQuestionsAnswered = 0;
+        levelCorrectAnswers = 0;
+        currentStreak = 0;
+        highestBadgeEarned = null;
+        updatePrestigeBadges();
+        sommenTeller = 0;
+        lastigeSommen = [];
+        animalCollectionEl.textContent = "";
+        isPaused = false;
+        pauseOverlay.style.display = 'none';
+
+        generateProblem();
+    });
+
+    // --- Game Logic ---
+
+    stopBtn.addEventListener('click', () => endGame());
+
+    pauseBtn.addEventListener('click', () => {
+        if (!isPaused) {
+            isPaused = true;
+            clearInterval(timerInterval);
+            // Save remaining time ratio?
+            // For simplicity, we just freeze visuals.
+            // Better: calculate elapsed properly on resume.
+            pausedTime = Date.now();
+            pauseOverlay.style.display = 'flex';
+        }
+    });
+
+    resumeBtn.addEventListener('click', () => {
+        if (isPaused) {
+            isPaused = false;
+            pauseOverlay.style.display = 'none';
+            // Adjust startTime to account for pause duration
+            const durationPaused = Date.now() - pausedTime;
+            startTime += durationPaused;
+            startTimer(false); // resume
+            answerInput.focus();
+        }
+    });
+
+    restartBtn.addEventListener('click', () => {
+        resultsContainer.style.display = 'none';
+        setupContainer.style.display = 'block';
+    });
+
+    function endGame() {
+        gameContainer.style.display = 'none';
+        resultsContainer.style.display = 'block';
         clearInterval(timerInterval);
-        timerBar.style.width = '0%';
-        timerBar.style.backgroundColor = '#2e7d32'; // Groen voor start
+
+        document.getElementById('res-total').textContent = totalQuestionsAnswered;
+        document.getElementById('res-correct').textContent = animalsFound;
+        document.getElementById('res-wrong').textContent = totalWrong;
+        document.getElementById('res-animals').textContent = animalCollectionEl.textContent;
+
+        // Personalization & High Score
+        const namePart = configName ? ` ${configName}` : "";
+
+        let labelText = `Proficiat${namePart}, je hebt deze dieren tijdens je Safari kunnen verzamelen:`;
+        if (animalsFound >= 10) {
+            labelText = `Fantastisch${namePart}! Je hebt een hele dierentuin verzameld:`;
+        } else if (animalsFound > 0) {
+            labelText = `Goed gedaan${namePart}! Deze dieren neem je mee naar huis:`;
+        } else {
+            labelText = `Jammer${namePart}, volgende keer vang je er vast meer!`;
+        }
+        document.getElementById('res-animals-label').textContent = labelText;
+
+        const encouragementEl = document.getElementById('encouragement-text');
+        const badgeContainer = document.getElementById('highest-badge-container');
+
+        // Encouraging text logic
+        let msg = "Wat heb je dat goed gedaan! Je bent een echte rekenkampioen.";
+        if (totalWrong === 0 && totalQuestionsAnswered > 0) {
+            msg = `Wauw${namePart}! Alles goed! Je bent superslim! 🌟`;
+        } else if (animalsFound > totalWrong) {
+            msg = `Goed gewerkt${namePart}! Je hebt heel veel dieren gered!`;
+        } else {
+            msg = `Blijven oefenen${namePart}, je wordt steeds beter!`;
+        }
+        encouragementEl.textContent = msg;
+
+        // Show highest badge
+        if (highestBadgeEarned) {
+             badgeContainer.innerHTML = `<div style="font-size: 1.5rem; margin-bottom: 10px; color: #FF9800;">Je Hoogste Badge:</div><div style="font-size: 8rem; filter: drop-shadow(0 0 15px gold);">${highestBadgeEarned}</div>`;
+        } else {
+             badgeContainer.innerHTML = "";
+        }
+    }
+
+    function playSound(type) {
+        let audio;
+        if (type === 'correct') {
+            audio = new Audio('https://www.soundjay.com/buttons/sounds/button-2.mp3');
+        } else if (type === 'levelup') {
+            audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
+        }
+        if (audio) {
+            audio.volume = 0.3;
+            audio.play().catch(e => console.log("Sound play error:", e));
+        }
+    }
+
+    function startTimer(isNew = true) {
+        if (isNew) startTime = Date.now();
+        clearInterval(timerInterval);
         
+        if (isNew) {
+            timerBar.style.width = '0%';
+            timerBar.style.backgroundColor = '#2e7d32';
+        }
+
+        const totalTimeMs = configTime * 1000;
+
         timerInterval = setInterval(() => {
             let elapsed = Date.now() - startTime;
-            let percent = (elapsed / 7000) * 100; // 7 seconden om te antwoorden
+            let percent = (elapsed / totalTimeMs) * 100;
             if (percent > 100) percent = 100;
 
             timerBar.style.width = percent + '%';
-            if (percent > 70) timerBar.style.backgroundColor = '#d32f2f'; // Rood als het bijna op is
-            else if (percent > 40) timerBar.style.backgroundColor = '#ffc107'; // Oranje in het midden
-            else timerBar.style.backgroundColor = '#2e7d32'; // Groen
+            if (percent > 70) timerBar.style.backgroundColor = '#d32f2f';
+            else if (percent > 40) timerBar.style.backgroundColor = '#ffc107';
+            else timerBar.style.backgroundColor = '#2e7d32';
 
         }, 100);
     }
 
     function generateProblem() {
-        sommenTeller++;
-        
-        // Controleer voor Level Up
-        if (animalsFound > 0 && animalsFound % 5 === 0 && currentLevel < 3 && !celebrationMessageEl.textContent) {
-            currentLevel++;
-            const levelText = currentLevel === 2 ? "2: Naar het Bovenbos (tot 20)!" : "3: Diepe Jungle (nog sneller!)";
-            levelIndicator.textContent = `Level ${levelText}`;
-            celebrationMessageEl.textContent = "GEFELICITEERD! Een nieuwe zone ontdekt!";
-            playSound('levelup');
-            setTimeout(() => celebrationMessageEl.textContent = "", 3000);
-            
-            // Geef een korte pauze na de felicitatie voor de volgende som
-            setTimeout(() => {
-                _generateActualProblem();
-            }, 3500); // Wacht langer na een level-up
-            return; // Stop en wacht op de timeout
+        // Continuous Evaluation Logic
+        // 1. Have we met the Minimum Questions requirement?
+        if (levelQuestionsAnswered >= configTotalPerLevel) {
+
+            // 2. Calculate Success Percentage
+            const successRate = (levelCorrectAnswers / levelQuestionsAnswered) * 100;
+
+            if (successRate >= configThreshold) {
+                 // Level Up!
+                if (currentLevel < targetMaxLevel) {
+                    currentLevel++;
+                    showLevelUp();
+                } else {
+                    celebrationMessageEl.textContent = "GEFELICITEERD! Je bent klaar!";
+                    playSound('levelup');
+                    setTimeout(() => endGame(), 2500);
+                }
+                return;
+            } else {
+                // Not enough success yet.
+                // Continue generating problems.
+                // We keep levelQuestionsAnswered accumulating, which means next check happens at N+1.
+                // This allows the child to dilute mistakes with correct answers until Threshold is met.
+
+                // Show encouragement if this was the specific boundary check
+                if (levelQuestionsAnswered === configTotalPerLevel) {
+                    helperTextEl.textContent = "Nog even doorzetten om het level te halen!";
+                }
+            }
         }
 
         _generateActualProblem();
     }
 
-    function _generateActualProblem() {
-        helperTextEl.textContent = "";
+    function showLevelUp() {
+        levelQuestionsAnswered = 0;
+        levelCorrectAnswers = 0;
+        currentStreak = 0;
+        updatePrestigeBadges();
 
-        // Elke 4e som een lastige som herhalen als die er zijn
+        levelIndicator.textContent = `Level ${currentLevel}!`;
+        celebrationMessageEl.textContent = "GEFELICITEERD! Volgend Level!";
+        playSound('levelup');
+        setTimeout(() => celebrationMessageEl.textContent = "", 3000);
+        setTimeout(() => {
+            _generateActualProblem();
+        }, 3500);
+    }
+
+    function updatePrestigeBadges() {
+        // Calculate streak percentage based on REQUIRED questions for this level
+        // (Streak / MinQuestions) * 100
+        if (configTotalPerLevel <= 0) return;
+
+        let pct = (currentStreak / configTotalPerLevel) * 100;
+        let animal = "";
+
+        if (pct >= 100) animal = "🦁";
+        else if (pct >= 85) animal = "🐼";
+        else if (pct >= 70) animal = "🦊";
+        else if (pct >= 60) animal = "🐭";
+        else if (pct >= 50) animal = "🐶";
+
+        if (animal) {
+            prestigeLeft.textContent = animal;
+            prestigeRight.textContent = animal;
+            prestigeLeft.classList.add('visible');
+            prestigeRight.classList.add('visible');
+
+            // Track highest badge logic (Hierarchy: Lion > Panda > Fox > Mouse > Dog)
+            const hierarchy = ['🐶', '🐭', '🦊', '🐼', '🦁'];
+            if (!highestBadgeEarned || hierarchy.indexOf(animal) > hierarchy.indexOf(highestBadgeEarned)) {
+                highestBadgeEarned = animal;
+            }
+        } else {
+            prestigeLeft.classList.remove('visible');
+            prestigeRight.classList.remove('visible');
+        }
+    }
+
+    function _generateActualProblem() {
+        helperTextEl.textContent = helperTextEl.textContent || "";
+
+        sommenTeller++;
+
         if (sommenTeller % 4 === 0 && lastigeSommen.length > 0) {
             let index = Math.floor(Math.random() * lastigeSommen.length);
             let gekozen = lastigeSommen[index];
             currentAnswer = gekozen.ans;
             problemEl.innerHTML = gekozen.txt;
             helperTextEl.textContent = "Oefen deze nog eens!";
-            lastigeSommen.splice(index, 1); // Verwijder uit lijst, we gaan hem nu oefenen
+            lastigeSommen.splice(index, 1);
         } else {
-            const maxNum = (currentLevel === 1) ? 10 : (currentLevel === 2 ? 20 : 20); // Levels 1, 2 en 3 zijn tot 10, 20, 20
-            levelIndicator.textContent = `Level ${currentLevel}: ${currentLevel === 1 ? "Start Savanne (tot 10)" : (currentLevel === 2 ? "Bovenbos (tot 20)" : "Diepe Jungle (tot 20, sneller!)")}`;
-            levelIndicator.style.background = currentLevel === 1 ? "#4CAF50" : (currentLevel === 2 ? "#FF9800" : "#9C27B0");
+            // Level Definitions
+            let minVal, maxVal;
+            if (currentLevel === 1) { minVal=0; maxVal=10; }
+            else if (currentLevel === 2) { minVal=10; maxVal=20; }
+            else if (currentLevel === 3) { minVal=15; maxVal=30; }
+            else if (currentLevel === 4) { minVal=20; maxVal=40; }
+            else { minVal=30; maxVal=100; }
+
+            levelIndicator.textContent = `Level ${currentLevel} (${minVal}-${maxVal})`;
+            const colors = ["#4CAF50", "#FF9800", "#9C27B0", "#2196F3", "#F44336"];
+            levelIndicator.style.background = colors[(currentLevel - 1) % colors.length];
             
-            let type = Math.random();
             let a, b, txt;
-            
-            if (type < 0.4) { // Plus
-                a = Math.floor(Math.random() * (maxNum + 1));
-                b = Math.floor(Math.random() * (maxNum - a + 1));
-                currentAnswer = a + b;
-                txt = `${a} + ${b} =`;
-            } else if (type < 0.7) { // Min
-                a = Math.floor(Math.random() * maxNum) + 1;
-                b = Math.floor(Math.random() * (a + 1));
-                currentAnswer = a - b;
-                txt = `${a} - ${b} =`;
-            } else { // Splitsen
-                let tot = Math.floor(Math.random() * (maxNum - 1)) + 2;
+            let op = selectedOperation;
+
+            problemEl.style.fontSize = "8rem";
+
+            if (op === 'split') {
+                let effectiveMin = Math.max(minVal, 2);
+                let tot = Math.floor(Math.random() * (maxVal - effectiveMin + 1)) + effectiveMin;
                 let d1 = Math.floor(Math.random() * (tot + 1));
                 currentAnswer = tot - d1;
                 txt = `Splits ${tot}:<br>${d1} en ...`;
-                problemEl.style.fontSize = "45px"; // Kleinere tekst voor splitsingen
+                problemEl.style.fontSize = "clamp(4rem, 12vh, 8rem)";
+            } else if (op === 'add') {
+                currentAnswer = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+                a = Math.floor(Math.random() * (currentAnswer + 1));
+                b = currentAnswer - a;
+                txt = `${a} + ${b} =`;
+            } else if (op === 'subtract') {
+                a = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+                b = Math.floor(Math.random() * (a + 1));
+                currentAnswer = a - b;
+                txt = `${a} - ${b} =`;
+            } else if (op === 'multiply') {
+                 let attempts = 0;
+                 do {
+                    a = Math.floor(Math.random() * (maxVal/2)) + 1;
+                    if (a === 0) a = 1;
+                    let minB = Math.ceil(minVal / a);
+                    let maxB = Math.floor(maxVal / a);
+                    if (maxB >= minB) {
+                        b = Math.floor(Math.random() * (maxB - minB + 1)) + minB;
+                        currentAnswer = a * b;
+                        break;
+                    }
+                    attempts++;
+                 } while (attempts < 50);
+
+                 if (attempts >= 50) {
+                     a = 2; b = Math.floor(minVal/2) + 1; currentAnswer = a*b;
+                 }
+                 txt = `${a} x ${b} =`;
+
+            } else if (op === 'divide') {
+                let attempts = 0;
+                do {
+                    a = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+                    if (a < 1) a = 1;
+                    let factors = [];
+                    for(let i=1; i<=a; i++) {
+                        if (a % i === 0) factors.push(i);
+                    }
+                    if (factors.length > 0) {
+                        b = factors[Math.floor(Math.random() * factors.length)];
+                        currentAnswer = a / b;
+                        break;
+                    }
+                    attempts++;
+                } while (attempts < 50);
+
+                if (attempts >= 50) { a=4; b=2; currentAnswer=2; }
+                txt = `${a} : ${b} =`;
             }
-            if (type < 0.7) problemEl.style.fontSize = "80px"; // Reset font size voor gewone sommen
+
             problemEl.innerHTML = txt;
         }
 
@@ -163,39 +752,53 @@
             clearInterval(timerInterval);
             
             animalsFound++;
+            levelCorrectAnswers++;
+            levelQuestionsAnswered++;
+            totalQuestionsAnswered++;
+            currentStreak++;
+            updatePrestigeBadges();
             playSound('correct');
 
+            const namePart = configName ? ` ${configName}` : "";
             let newAnimal = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
-            let feedbackText = "Super! " + newAnimal + " gevonden!";
-            if (elapsed < 3000) { // Sneller is nog beter!
-                feedbackText = "Wauw, supersnel! " + newAnimal + " gered!";
+            let feedbackText = `Super${namePart}! ` + newAnimal + " gevonden!";
+            if (elapsed < (configTime * 1000) * 0.4) {
+                feedbackText = `Wauw, supersnel${namePart}! ` + newAnimal + " gered!";
             }
             feedbackMessageEl.textContent = feedbackText;
-            animalCollectionEl.textContent += newAnimal; // Voeg dier toe aan verzameling
-            
-            // Verwijder oude dieren als het er te veel worden om de rij leesbaar te houden
+            animalCollectionEl.textContent += newAnimal;
+
             if (animalCollectionEl.textContent.length > 20) animalCollectionEl.textContent = animalCollectionEl.textContent.substring(2);
 
             setTimeout(() => {
                 feedbackMessageEl.textContent = "";
-                generateProblem(); // Genereer volgende som
+                generateProblem();
             }, 600);
+
         } else if (answerInput.value.length >= currentAnswer.toString().length && val !== currentAnswer) {
-            // Fout antwoord ingevuld
-            lastigeSommen.push({txt: problemEl.innerHTML, ans: currentAnswer}); // Voeg toe aan lastige sommen
-            feedbackMessageEl.textContent = "Oeps, probeer het nog eens!";
-            feedbackMessageEl.style.color = "#d32f2f"; // Rood bij fout
-            answerInput.classList.add('focus-mode'); // Visuele focus op input
-            setTimeout(() => { 
-                answerInput.classList.remove('focus-mode'); 
-                answerInput.value = ''; 
+            // Wrong answer
+            levelQuestionsAnswered++;
+            totalQuestionsAnswered++;
+            totalWrong++;
+            currentStreak = 0; // Reset streak on wrong answer
+            updatePrestigeBadges();
+
+            const namePart = configName ? ` ${configName}` : "";
+            lastigeSommen.push({txt: problemEl.innerHTML, ans: currentAnswer});
+            feedbackMessageEl.textContent = `Helaas${namePart}, volgende keer beter!`;
+            feedbackMessageEl.style.color = "#d32f2f";
+            answerInput.classList.add('focus-mode');
+            setTimeout(() => {
+                answerInput.classList.remove('focus-mode');
+                answerInput.value = '';
                 feedbackMessageEl.textContent = "";
-                feedbackMessageEl.style.color = "#4CAF50"; // Reset kleur
-            }, 800);
+                feedbackMessageEl.style.color = "#4CAF50";
+                generateProblem();
+            }, 1000);
         }
     });
 
-    generateProblem(); // Start het eerste probleem
+    loadSettings();
 </script>
 </body>
 </html>
