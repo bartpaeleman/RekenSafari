@@ -190,6 +190,14 @@
             box-sizing: border-box;
             background: white;
         }
+        .config-desc-compact {
+            font-size: clamp(0.6rem, 1.2vh, 0.9rem);
+            color: #666;
+            margin-top: 0.5vh;
+            line-height: 1.1;
+            max-height: 2.4em;
+            overflow: hidden;
+        }
 
         #stop-btn { background: #d32f2f; color: white; border: none; padding: 1.5vh 3vw; border-radius: 3vh; font-size: clamp(1rem, 2vh, 1.5rem); font-weight: bold; cursor: pointer; border-bottom: 0.5vh solid #b71c1c; }
         #stop-btn:active { transform: translateY(0.5vh); border-bottom: none; }
@@ -222,18 +230,22 @@
         <div class="config-item compact">
             <label>Naam kind</label>
             <input type="text" id="cfg-name" placeholder="Naam">
+            <div class="config-desc-compact">Naam voor in het spel</div>
         </div>
         <div class="config-item compact">
             <label>Tijd (sec)</label>
             <input type="number" id="cfg-time" value="10" min="3" max="120">
+            <div class="config-desc-compact">Max tijd per vraag</div>
         </div>
         <div class="config-item compact">
             <label>Vragen/Level</label>
             <input type="number" id="cfg-total" value="10" min="5" max="100">
+            <div class="config-desc-compact">Minimaal aantal vragen</div>
         </div>
         <div class="config-item compact">
             <label>Drempel (%)</label>
             <input type="number" id="cfg-threshold" value="80" min="10" max="100">
+            <div class="config-desc-compact">% Goed voor volgend level</div>
         </div>
         <div class="config-item compact">
             <label>Badge Niveau</label>
@@ -242,21 +254,26 @@
                 <option value="normal" selected>Normaal</option>
                 <option value="hard">Moeilijk</option>
             </select>
+            <div class="config-desc-compact">Moeilijkheid badges</div>
         </div>
     </div>
 
-    <div class="setup-section" style="margin: 1vh 0; width: 100%;">
+    <div class="setup-section" style="margin: 1vh 0; width: 100%; flex-grow: 1; overflow-y: auto;">
         <h3 style="font-size: clamp(1.2rem, 2.5vh, 2rem); margin-bottom: 1vh;">🏆 Badges Overzicht</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1vh; text-align: left; font-size: clamp(0.8rem, 1.5vh, 1.2rem);">
-            <div style="background: #fce4ec; padding: 1vh; border-radius: 1vh;">
-                <b style="color: #E91E63;">1 Level:</b> 🐣Kuiken 🐱Miauw 🐶Woef 🐰Konijn
-            </div>
-            <div style="background: #e3f2fd; padding: 1vh; border-radius: 1vh;">
-                <b style="color: #2196F3;">Meer Levels:</b> 🐭Muis 🐻Beer 🦊Vos
-            </div>
-            <div style="background: #fff3e0; padding: 1vh; border-radius: 1vh;">
-                <b style="color: #FF9800;">Levenslang:</b> 🐼Panda 🐯Tijger 🦁Leeuw
-            </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1vh; text-align: center; font-size: clamp(0.8rem, 1.5vh, 1.2rem);">
+            <!-- Level Badges -->
+            <div style="background: #fce4ec; padding: 0.8vh; border-radius: 1vh; border: 2px solid #E91E63; color: #333;">🐣 Kuiken</div>
+            <div style="background: #fce4ec; padding: 0.8vh; border-radius: 1vh; border: 2px solid #E91E63; color: #333;">🐱 Miauw</div>
+            <div style="background: #fce4ec; padding: 0.8vh; border-radius: 1vh; border: 2px solid #E91E63; color: #333;">🐶 Woef</div>
+            <div style="background: #fce4ec; padding: 0.8vh; border-radius: 1vh; border: 2px solid #E91E63; color: #333;">🐰 Konijn</div>
+            <!-- Session Badges -->
+            <div style="background: #e3f2fd; padding: 0.8vh; border-radius: 1vh; border: 2px solid #2196F3; color: #333;">🐭 Muis</div>
+            <div style="background: #e3f2fd; padding: 0.8vh; border-radius: 1vh; border: 2px solid #2196F3; color: #333;">🐻 Beer</div>
+            <div style="background: #e3f2fd; padding: 0.8vh; border-radius: 1vh; border: 2px solid #2196F3; color: #333;">🦊 Vos</div>
+            <!-- Lifetime Badges -->
+            <div style="background: #fff3e0; padding: 0.8vh; border-radius: 1vh; border: 2px solid #FF9800; color: #333;">🐼 Panda</div>
+            <div style="background: #fff3e0; padding: 0.8vh; border-radius: 1vh; border: 2px solid #FF9800; color: #333;">🐯 Tijger</div>
+            <div style="background: #fff3e0; padding: 0.8vh; border-radius: 1vh; border: 2px solid #FF9800; color: #333;">🦁 Leeuw</div>
         </div>
     </div>
 
@@ -327,11 +344,10 @@
         <button id="start-level-btn" style="background: #FF9800; color: white; border: none; padding: 2vh 5vw; font-size: clamp(2rem, 4vh, 3rem); border-radius: 4vh; cursor: pointer; box-shadow: 0 0.8vh 0 #E65100;">Start Level ▶️</button>
     </div>
 
-    <div id="badge-notification" style="position: absolute; top: 10%; left: 50%; transform: translateX(-50%); background: #FFF9C4; padding: 20px; border-radius: 20px; border: 5px solid #FFD700; box-shadow: 0 10px 20px rgba(0,0,0,0.3); z-index: 30; display: none; flex-direction: column; align-items: center; animation: popIn 0.5s ease;">
-        <div style="font-size: 2rem; font-weight: bold; color: #FF9800;">NIEUWE BADGE!</div>
-        <div id="badge-notify-icon" style="font-size: 6rem;">🏆</div>
-        <div id="badge-notify-name" style="font-size: 2.5rem; color: #333; font-weight: bold;">Naam</div>
-        <div id="badge-notify-desc" style="font-size: 1.5rem; color: #666;">Omschrijving</div>
+    <div id="badge-notification" style="position: absolute; top: 10%; left: 50%; transform: translateX(-50%); background: #FFF9C4; padding: 3vh; border-radius: 3vh; border: 0.8vh solid #FFD700; box-shadow: 0 2vh 4vh rgba(0,0,0,0.3); z-index: 30; display: none; flex-direction: column; align-items: center; animation: popIn 0.5s ease; text-align: center; width: 80vw; max-width: 500px;">
+        <div id="badge-notify-name" style="font-size: clamp(2rem, 5vh, 4rem); color: #E65100; font-weight: bold; margin-bottom: 1vh;">Naam</div>
+        <div id="badge-notify-desc" style="font-size: clamp(1.2rem, 3vh, 2.5rem); color: #555; margin-bottom: 2vh;">Omschrijving</div>
+        <div id="badge-notify-icon" style="font-size: clamp(5rem, 12vh, 10rem); filter: drop-shadow(0 0 10px gold);">🏆</div>
     </div>
 
     <div class="safari-header">🐘 Rekensafari Avontuur 🦁</div>
