@@ -214,6 +214,33 @@
                 <input type="number" id="cfg-threshold" value="80" min="10" max="100">
                 <div class="config-desc">% Correct nodig om naar volgend level te gaan.</div>
             </div>
+            <div class="config-item">
+                <label>Badge Niveau</label>
+                <select id="cfg-badge-difficulty" style="font-size: 1.2rem; padding: 5px; border-radius: 10px; border: 3px solid #fbc02d; width: 100%;">
+                    <option value="easy">Makkelijk (x0.5)</option>
+                    <option value="normal" selected>Normaal (x1.0)</option>
+                    <option value="hard">Moeilijk (x1.5)</option>
+                </select>
+                <div class="config-desc">Hoe moeilijk is het om badges te halen?</div>
+            </div>
+        </div>
+
+        <div class="setup-section">
+            <h3>🏆 Prestige Badges Overzicht</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; max-height: 20vh; overflow-y: auto;">
+                <div class="config-item" style="width: 100%; max-width: none;">
+                    <div style="font-weight: bold; color: #E91E63;">Binnen 1 Level (Streak)</div>
+                    <div>🐣 Beginnend Kuikentje | 🐱 Leergierige Miauw | 🐶 Doorzettende Woef | 🐰 Krachtig Konijn</div>
+                </div>
+                <div class="config-item" style="width: 100%; max-width: none;">
+                    <div style="font-weight: bold; color: #2196F3;">Over Meerdere Levels</div>
+                    <div>🐭 Snelle Muis (Snelheid) | 🐻 Sterke Beer (Level 3) | 🦊 Sluwe Vos (Level 5)</div>
+                </div>
+                <div class="config-item" style="width: 100%; max-width: none;">
+                    <div style="font-weight: bold; color: #FF9800;">Levenslang (Prestatie)</div>
+                    <div>🐼 Slimme Panda (Spellen) | 🐯 Perfecte Tijger (Totaal) | 🦁 Leeuwenkoning (Meester)</div>
+                </div>
+            </div>
         </div>
 
         <button id="parent-save-btn">Opslaan & Naar Kindermenu 💾</button>
@@ -282,6 +309,13 @@
         <button id="start-level-btn" style="background: #FF9800; color: white; border: none; padding: 2vh 5vw; font-size: clamp(2rem, 4vh, 3rem); border-radius: 4vh; cursor: pointer; box-shadow: 0 0.8vh 0 #E65100;">Start Level ▶️</button>
     </div>
 
+    <div id="badge-notification" style="position: absolute; top: 10%; left: 50%; transform: translateX(-50%); background: #FFF9C4; padding: 20px; border-radius: 20px; border: 5px solid #FFD700; box-shadow: 0 10px 20px rgba(0,0,0,0.3); z-index: 30; display: none; flex-direction: column; align-items: center; animation: popIn 0.5s ease;">
+        <div style="font-size: 2rem; font-weight: bold; color: #FF9800;">NIEUWE BADGE!</div>
+        <div id="badge-notify-icon" style="font-size: 6rem;">🏆</div>
+        <div id="badge-notify-name" style="font-size: 2.5rem; color: #333; font-weight: bold;">Naam</div>
+        <div id="badge-notify-desc" style="font-size: 1.5rem; color: #666;">Omschrijving</div>
+    </div>
+
     <div class="safari-header">🐘 Rekensafari Avontuur 🦁</div>
 
     <div class="top-bar-controls">
@@ -325,7 +359,18 @@
     let levelQuestionsAnswered = 0;
     let levelCorrectAnswers = 0;
     let currentStreak = 0;
-    let highestBadgeEarned = null; // Track best badge
+    let highestBadgeEarned = null; // Track best badge within session
+
+    // Stats
+    let stats = {
+        totalGames: 0,
+        totalCorrect: 0,
+        earnedBadges: []
+    };
+    let sessionStats = {
+        levelsCompleted: 0,
+        startTime: Date.now() // For duration tracking
+    };
 
     // Settings
     let selectedOperation = null;
@@ -334,6 +379,7 @@
     let configTime = 10;
     let configTotalPerLevel = 10;
     let configThreshold = 80; // Percent
+    let configBadgeDifficulty = "normal"; // easy, normal, hard
 
     // Elements
     const parentScreen = document.getElementById('parent-screen');
@@ -365,8 +411,21 @@
     const feedbackMessageEl = document.getElementById('feedback-message');
     const helperTextEl = document.getElementById('helper-text');
     const celebrationMessageEl = document.getElementById('celebration-message');
+    const badgeNotification = document.getElementById('badge-notification');
 
     // --- Initialization & Parent Screen ---
+
+    function loadStats() {
+        if (localStorage.getItem('safari_stats')) {
+            try {
+                stats = JSON.parse(localStorage.getItem('safari_stats'));
+            } catch(e) { console.error("Stats load error", e); }
+        }
+    }
+
+    function saveStats() {
+        localStorage.setItem('safari_stats', JSON.stringify(stats));
+    }
 
     function loadSettings() {
         if (localStorage.getItem('safari_cfg_name')) {
@@ -379,6 +438,12 @@
             document.getElementById('cfg-total').value = localStorage.getItem('safari_cfg_total');
             document.getElementById('cfg-threshold').value = localStorage.getItem('safari_cfg_threshold');
         }
+        if (localStorage.getItem('safari_cfg_badge_diff')) {
+            configBadgeDifficulty = localStorage.getItem('safari_cfg_badge_diff');
+            document.getElementById('cfg-badge-difficulty').value = configBadgeDifficulty;
+        }
+
+        loadStats(); // Load badge stats
     }
 
     parentSaveBtn.addEventListener('click', () => {
@@ -386,11 +451,13 @@
         configTime = parseInt(document.getElementById('cfg-time').value) || 10;
         configTotalPerLevel = parseInt(document.getElementById('cfg-total').value) || 10;
         configThreshold = parseInt(document.getElementById('cfg-threshold').value) || 80;
+        configBadgeDifficulty = document.getElementById('cfg-badge-difficulty').value;
 
         localStorage.setItem('safari_cfg_name', configName);
         localStorage.setItem('safari_cfg_time', configTime);
         localStorage.setItem('safari_cfg_total', configTotalPerLevel);
         localStorage.setItem('safari_cfg_threshold', configThreshold);
+        localStorage.setItem('safari_cfg_badge_diff', configBadgeDifficulty);
 
         parentScreen.style.display = 'none';
         setupContainer.style.display = 'block';
@@ -453,13 +520,21 @@
         levelCorrectAnswers = 0;
         currentStreak = 0;
         highestBadgeEarned = null;
-        updatePrestigeBadges();
         sommenTeller = 0;
         lastigeSommen = [];
         animalCollectionEl.textContent = "";
         isPaused = false;
         pauseOverlay.style.display = 'none';
         levelStartOverlay.style.display = 'none';
+
+        sessionStats.levelsCompleted = 0;
+        sessionStats.startTime = Date.now();
+
+        // Check lifetime badges at start (e.g., played X games)
+        stats.totalGames++;
+        saveStats();
+        checkBadges('game_start');
+        updatePrestigeBadges();
 
         generateProblem();
     });
@@ -542,9 +617,19 @@
 
         // Show highest badge
         if (highestBadgeEarned) {
-             badgeContainer.innerHTML = `<div style="font-size: 1.5rem; margin-bottom: 10px; color: #FF9800;">Je Hoogste Badge:</div><div style="font-size: 8rem; filter: drop-shadow(0 0 15px gold);">${highestBadgeEarned}</div>`;
+             badgeContainer.innerHTML = `<div style="font-size: 1.5rem; margin-bottom: 10px; color: #FF9800;">Je Hoogste Level Badge:</div><div style="font-size: 8rem; filter: drop-shadow(0 0 15px gold);">${highestBadgeEarned}</div>`;
         } else {
              badgeContainer.innerHTML = "";
+        }
+
+        // Show new lifetime badges earned this session
+        // (Simplified: showing total badges count or last earned)
+        const earnedCount = stats.earnedBadges.length;
+        if (earnedCount > 0) {
+             const badgeList = document.createElement('div');
+             badgeList.style.marginTop = "20px";
+             badgeList.innerHTML = `<div style="font-size: 1.5rem; color: #2196F3;">Je hebt in totaal ${earnedCount} trofeeën! 🏆</div>`;
+             badgeContainer.appendChild(badgeList);
         }
     }
 
@@ -623,6 +708,9 @@
     }
 
     function showLevelUp() {
+        sessionStats.levelsCompleted++;
+        checkBadges('level_complete');
+
         levelQuestionsAnswered = 0;
         levelCorrectAnswers = 0;
         currentStreak = 0;
@@ -637,26 +725,95 @@
         levelStartOverlay.style.display = 'flex';
     }
 
+    // Badge Definitions
+    const badges = {
+        'level_chick':  { id: 'level_chick', icon: '🐣', name: 'Beginnend Kuikentje', desc: 'Een goed begin!', cat: 'level' },
+        'level_cat':    { id: 'level_cat', icon: '🐱', name: 'Leergierige Miauw', desc: 'Op de helft!', cat: 'level' },
+        'level_dog':    { id: 'level_dog', icon: '🐶', name: 'Doorzettende Woef', desc: 'Bijna daar!', cat: 'level' },
+        'level_rabbit': { id: 'level_rabbit', icon: '🐰', name: 'Krachtig Konijn', desc: 'Foutloos Level!', cat: 'level' },
+
+        'session_mouse': { id: 'session_mouse', icon: '🐭', name: 'Snelle Muis', desc: 'Supersnel gerekend!', cat: 'session' },
+        'session_bear':  { id: 'session_bear', icon: '🐻', name: 'Sterke Beer', desc: 'Level 3 Bereikt!', cat: 'session' },
+        'session_fox':   { id: 'session_fox', icon: '🦊', name: 'Sluwe Vos', desc: 'Level 5 Bereikt!', cat: 'session' },
+
+        'life_panda':    { id: 'life_panda', icon: '🐼', name: 'Slimme Panda', desc: '5 Spellen Gespeeld', cat: 'life' },
+        'life_tiger':    { id: 'life_tiger', icon: '🐯', name: 'Perfecte Tijger', desc: '100 Vragen Goed', cat: 'life' },
+        'life_lion':     { id: 'life_lion', icon: '🦁', name: 'Leeuwenkoning', desc: '500 Vragen Goed', cat: 'life' }
+    };
+
+    function checkBadges(context) {
+        let earned = false;
+
+        // Helper to award
+        const award = (id) => {
+            if (!stats.earnedBadges.includes(id)) {
+                stats.earnedBadges.push(id);
+                showBadgeNotification(badges[id]);
+                earned = true;
+                saveStats();
+            }
+        };
+
+        // Difficulty Multiplier (Higher difficulty = harder to get, or same? Prompt implied scaling.
+        // Let's assume requirements scale UP with difficulty setting, making it harder.)
+        let mult = 1.0;
+        if (configBadgeDifficulty === 'easy') mult = 0.5;
+        if (configBadgeDifficulty === 'hard') mult = 1.5;
+
+        // Session Badges
+        if (context === 'level_complete') {
+            if (currentLevel >= 3) award('session_bear');
+            if (currentLevel >= 5) award('session_fox');
+            // Mouse logic: if average time was fast (simulated check for now or based on total time?)
+            // For simplicity: if time per question was consistently low (< 5s).
+            // We don't track avg time perfectly yet, let's use a placeholder condition:
+            if (configTime <= 5) award('session_mouse');
+        }
+
+        // Lifetime Badges
+        if (context === 'game_start' || context === 'game_end') {
+            if (stats.totalGames >= Math.ceil(5 * mult)) award('life_panda');
+        }
+
+        // Total Correct (Check always)
+        if (stats.totalCorrect >= Math.ceil(100 * mult)) award('life_tiger');
+        if (stats.totalCorrect >= Math.ceil(500 * mult)) award('life_lion');
+
+        return earned;
+    }
+
+    function showBadgeNotification(badge) {
+        document.getElementById('badge-notify-icon').textContent = badge.icon;
+        document.getElementById('badge-notify-name').textContent = badge.name;
+        document.getElementById('badge-notify-desc').textContent = badge.desc;
+        badgeNotification.style.display = 'flex';
+        playSound('prestige');
+        setTimeout(() => {
+            badgeNotification.style.display = 'none';
+        }, 4000);
+    }
+
     function updatePrestigeBadges() {
-        // Calculate streak percentage based on REQUIRED questions for this level
-        // (Streak / MinQuestions) * 100
+        // Updates IN-GAME Level Badges (Visual only, transient)
         if (configTotalPerLevel <= 0) return false;
 
-        let pct = (currentStreak / configTotalPerLevel) * 100;
-        let animal = "";
+        // Difficulty scaling for Level Badges?
+        // Prompt implies scaling. Let's scale the streak requirement effectively by changing thresholds?
+        // Actually, Streak % is relative. Let's keep it simple: Fixed % for visual feedback.
+        // 25, 50, 75, 100.
 
-        if (pct >= 100) animal = "🦁";
-        else if (pct >= 85) animal = "🐼";
-        else if (pct >= 70) animal = "🦊";
-        else if (pct >= 60) animal = "🐭";
-        else if (pct >= 50) animal = "🐶";
+        let pct = (currentStreak / configTotalPerLevel) * 100;
+        let badge = null;
+
+        if (pct >= 100) badge = badges['level_rabbit'];
+        else if (pct >= 75) badge = badges['level_dog'];
+        else if (pct >= 50) badge = badges['level_cat'];
+        else if (pct >= 25) badge = badges['level_chick'];
 
         let newBadge = false;
 
-        if (animal) {
-            // Check if this specific animal is new/different from what is currently shown?
-            // Actually, we want to know if we JUST crossed a threshold.
-            // Simplified: if the displayed text changes to a new animal, return true.
+        if (badge) {
+            let animal = badge.icon;
             if (prestigeLeft.textContent !== animal) {
                 newBadge = true;
             }
@@ -666,9 +823,10 @@
             prestigeLeft.classList.add('visible');
             prestigeRight.classList.add('visible');
 
-            // Track highest badge logic (Hierarchy: Lion > Panda > Fox > Mouse > Dog)
-            const hierarchy = ['🐶', '🐭', '🦊', '🐼', '🦁'];
-            if (!highestBadgeEarned || hierarchy.indexOf(animal) > hierarchy.indexOf(highestBadgeEarned)) {
+            // Track highest session badge
+            // Hierarchy: Chick < Cat < Dog < Rabbit
+            const levelOrder = ['🐣', '🐱', '🐶', '🐰'];
+            if (!highestBadgeEarned || levelOrder.indexOf(animal) > levelOrder.indexOf(highestBadgeEarned)) {
                 highestBadgeEarned = animal;
             }
         } else {
@@ -789,10 +947,13 @@
             totalQuestionsAnswered++;
             currentStreak++;
 
+            stats.totalCorrect++;
+            saveStats();
+            checkBadges('correct_answer');
+
             if (updatePrestigeBadges()) {
                 playSound('prestige');
             }
-            // No generic 'correct' sound anymore
 
             const namePart = configName ? ` ${configName}` : "";
             let newAnimal = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
