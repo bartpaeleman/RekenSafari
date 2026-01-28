@@ -6,7 +6,8 @@
     <title>Rekensafari: Verloren Dieren Avontuur!</title>
     <style>
         /* Responsive Reset & Base */
-        body { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; text-align: center; background-color: #e6f7ff; margin: 0; padding: 0; user-select: none; height: 100vh; width: 100vw; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        html { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; }
+        body { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; text-align: center; background-color: #e6f7ff; margin: 0; padding: 0; user-select: none; height: 100%; width: 100%; overflow: hidden; display: flex; align-items: center; justify-content: center; }
 
         .app-container {
             width: 95vw;
@@ -90,11 +91,24 @@
             margin: 1vh 0;
             color: #333;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            line-height: 1;
+            line-height: 1.1;
             text-shadow: 0.3vh 0.3vh 0 rgba(0,0,0,0.1);
+        }
+
+        .split-header {
+            font-size: clamp(2rem, 5vh, 4rem);
+            font-weight: normal;
+            color: #555;
+        }
+
+        .split-body {
+            font-size: clamp(4rem, 10vh, 8rem);
+            font-weight: bold;
+            color: #E65100;
         }
 
         input {
@@ -156,11 +170,34 @@
         #start-btn.active { opacity: 1; pointer-events: all; }
         #start-btn:active { transform: translateY(0.8vh); box-shadow: none; }
 
-        .config-row { display: flex; justify-content: center; gap: 30px; margin-bottom: 30px; flex-wrap: wrap; }
-        .config-item { background: #fffde7; padding: 15px; border-radius: 15px; border: 3px solid #ffeb3b; text-align: left; max-width: 300px; }
-        .config-item label { display: block; font-weight: bold; color: #f57f17; font-size: 1.2rem; margin-bottom: 8px; }
-        .config-item input { font-size: 1.5rem; width: 100px; padding: 8px; border: 3px solid #fbc02d; border-radius: 10px; text-align: center; }
-        .config-desc { font-size: 0.9rem; color: #757575; margin-top: 5px; }
+        /* .config-row removed in favor of direct flex in parent */
+        .config-item { background: #fffde7; padding: 1vh 1vw; border-radius: 1.5vh; border: 0.3vh solid #ffeb3b; text-align: left; }
+        .config-item.compact {
+            flex: 1 1 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .config-item label { display: block; font-weight: bold; color: #f57f17; font-size: clamp(0.9rem, 2vh, 1.2rem); margin-bottom: 0.5vh; white-space: nowrap; }
+        .config-item input, .config-item select {
+            font-size: clamp(1rem, 2.5vh, 1.5rem);
+            width: 100%;
+            padding: 0.5vh;
+            border: 0.3vh solid #fbc02d;
+            border-radius: 1vh;
+            text-align: center;
+            box-sizing: border-box;
+            background: white;
+        }
+        .config-desc-compact {
+            font-size: clamp(0.6rem, 1.2vh, 0.9rem);
+            color: #666;
+            margin-top: 0.5vh;
+            line-height: 1.1;
+            max-height: 2.4em;
+            overflow: hidden;
+        }
 
         #stop-btn { background: #d32f2f; color: white; border: none; padding: 1.5vh 3vw; border-radius: 3vh; font-size: clamp(1rem, 2vh, 1.5rem); font-weight: bold; cursor: pointer; border-bottom: 0.5vh solid #b71c1c; }
         #stop-btn:active { transform: translateY(0.5vh); border-bottom: none; }
@@ -177,46 +214,72 @@
 
         #to-parent-btn { position: absolute; top: 2vh; left: 2vw; background: #ddd; border: none; padding: 1vh 1.5vw; border-radius: 1.5vh; font-size: clamp(0.8rem, 1.5vh, 1.2rem); cursor: pointer; }
 
-        .stat-box { font-size: clamp(1.5rem, 3vh, 2.5rem); margin: 2vh 0; color: #333; }
+        .stat-box { font-size: clamp(1.2rem, 2.5vh, 2rem); margin: 1vh 0; color: #333; }
         .stat-val { font-weight: bold; color: #2196F3; }
-        #restart-btn { background: #2196F3; color: white; border: none; padding: 2vh 5vw; font-size: clamp(1.5rem, 3vh, 2.5rem); border-radius: 4vh; cursor: pointer; margin-top: 3vh; box-shadow: 0 0.8vh 0 #0d47a1; }
-        #restart-btn:active { transform: translateY(0.8vh); box-shadow: none; }
+        #restart-btn { background: #2196F3; color: white; border: none; padding: 1.5vh 4vw; font-size: clamp(1.2rem, 2.5vh, 2rem); border-radius: 4vh; cursor: pointer; margin-top: 2vh; box-shadow: 0 0.6vh 0 #0d47a1; }
+        #restart-btn:active { transform: translateY(0.6vh); box-shadow: none; }
     </style>
 </head>
 <body>
 
-<div id="parent-screen" class="app-container" style="background: white; border: 12px solid #673AB7; box-shadow: 0 15px 0 #4527A0;">
-    <div class="safari-header" style="color: #673AB7; text-shadow: none;">👨‍👩‍👧‍👦 Mama & Papa Scherm</div>
+<div id="parent-screen" class="app-container" style="background: white; border: 0.8vh solid #673AB7; box-shadow: 0 1vh 0 #4527A0; display: flex; flex-direction: column; justify-content: space-evenly;">
+    <div class="safari-header" style="color: #673AB7; text-shadow: none; font-size: clamp(2rem, 4vh, 3rem); margin-bottom: 1vh;">👨‍👩‍👧‍👦 Mama & Papa Scherm</div>
 
-    <div class="setup-section">
-        <h3>Instellingen voor het spel ⚙️</h3>
-        <p style="font-size: 1.2rem; margin-bottom: 25px; color: #555;">Stel hier de moeilijkheidsgraad en regels in.</p>
-
-        <div class="config-row">
-            <div class="config-item">
-                <label>Naam van het kind</label>
-                <input type="text" id="cfg-name" placeholder="Naam" style="width: 180px;">
-                <div class="config-desc">Wordt gebruikt in het spel.</div>
-            </div>
-            <div class="config-item">
-                <label>Tijd per Vraag (sec)</label>
-                <input type="number" id="cfg-time" value="10" min="3" max="120">
-                <div class="config-desc">Seconden om een antwoord te geven.</div>
-            </div>
-            <div class="config-item">
-                <label>Min. Vragen / Level</label>
-                <input type="number" id="cfg-total" value="10" min="5" max="100">
-                <div class="config-desc">Minimaal aantal vragen voordat voortgang wordt gecheckt.</div>
-            </div>
-            <div class="config-item">
-                <label>Drempel (%)</label>
-                <input type="number" id="cfg-threshold" value="80" min="10" max="100">
-                <div class="config-desc">% Correct nodig om naar volgend level te gaan.</div>
-            </div>
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 2vw; width: 100%;">
+        <!-- Settings Compact Grid -->
+        <div class="config-item compact">
+            <label>Naam kind</label>
+            <input type="text" id="cfg-name" placeholder="Naam">
+            <div class="config-desc-compact">Naam voor in het spel</div>
         </div>
-
-        <button id="parent-save-btn">Opslaan & Naar Kindermenu 💾</button>
+        <div class="config-item compact">
+            <label>Tijd (sec)</label>
+            <input type="number" id="cfg-time" value="10" min="3" max="120">
+            <div class="config-desc-compact">Max tijd per vraag</div>
+        </div>
+        <div class="config-item compact">
+            <label>Vragen/Level</label>
+            <input type="number" id="cfg-total" value="10" min="5" max="100">
+            <div class="config-desc-compact">Minimaal aantal vragen</div>
+        </div>
+        <div class="config-item compact">
+            <label>Drempel (%)</label>
+            <input type="number" id="cfg-threshold" value="80" min="10" max="100">
+            <div class="config-desc-compact">% Goed voor volgend level</div>
+        </div>
+        <div class="config-item compact">
+            <label>Badge Niveau</label>
+            <select id="cfg-badge-difficulty">
+                <option value="easy">Makkelijk</option>
+                <option value="normal" selected>Normaal</option>
+                <option value="hard">Moeilijk</option>
+            </select>
+            <div class="config-desc-compact">Moeilijkheid badges</div>
+        </div>
     </div>
+
+    <div class="setup-section" style="margin: 1vh 0; width: 100%; flex-grow: 1; overflow-y: auto;">
+        <h3 style="font-size: clamp(1.2rem, 2.5vh, 2rem); margin-bottom: 1vh;">🏆 Badges Overzicht</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1vh; text-align: center; font-size: clamp(0.8rem, 1.5vh, 1.2rem);">
+            <!-- Level Badges -->
+            <div style="background: #fce4ec; padding: 0.8vh; border-radius: 1vh; border: 2px solid #E91E63; color: #333;">🐣 Kuiken</div>
+            <div style="background: #fce4ec; padding: 0.8vh; border-radius: 1vh; border: 2px solid #E91E63; color: #333;">🐱 Miauw</div>
+            <div style="background: #fce4ec; padding: 0.8vh; border-radius: 1vh; border: 2px solid #E91E63; color: #333;">🐶 Woef</div>
+            <div style="background: #fce4ec; padding: 0.8vh; border-radius: 1vh; border: 2px solid #E91E63; color: #333;">🐰 Konijn</div>
+            <!-- Session Badges -->
+            <div style="background: #e3f2fd; padding: 0.8vh; border-radius: 1vh; border: 2px solid #2196F3; color: #333;">🐝 Bij</div>
+            <div style="background: #e3f2fd; padding: 0.8vh; border-radius: 1vh; border: 2px solid #2196F3; color: #333;">🐭 Muis</div>
+            <div style="background: #e3f2fd; padding: 0.8vh; border-radius: 1vh; border: 2px solid #2196F3; color: #333;">🐻 Beer</div>
+            <div style="background: #e3f2fd; padding: 0.8vh; border-radius: 1vh; border: 2px solid #2196F3; color: #333;">🦊 Vos</div>
+            <!-- Lifetime Badges -->
+            <div style="background: #fff3e0; padding: 0.8vh; border-radius: 1vh; border: 2px solid #FF9800; color: #333;">🐼 Panda</div>
+            <div style="background: #fff3e0; padding: 0.8vh; border-radius: 1vh; border: 2px solid #FF9800; color: #333;">🐯 Tijger</div>
+            <div style="background: #fff3e0; padding: 0.8vh; border-radius: 1vh; border: 2px solid #FF9800; color: #333;">🦁 Leeuw</div>
+            <div style="background: #fff3e0; padding: 0.8vh; border-radius: 1vh; border: 2px solid #FF9800; color: #333;">🦄 Unicorn</div>
+        </div>
+    </div>
+
+    <button id="parent-save-btn">Opslaan & Start 💾</button>
 </div>
 
 <div id="setup-container" class="app-container">
@@ -253,17 +316,19 @@
         <!-- Highest badge will go here -->
     </div>
 
-    <div id="encouragement-text" style="font-size: 2rem; color: #E91E63; margin: 20px 40px; font-weight: bold; line-height: 1.4;">
+    <div id="encouragement-text" style="font-size: clamp(1.2rem, 2.5vh, 2rem); color: #E91E63; margin: 2vh 2vw; font-weight: bold; line-height: 1.3;">
         <!-- Encouraging text goes here -->
     </div>
 
-    <div class="stat-box">Totaal gemaakt: <span id="res-total" class="stat-val">0</span></div>
-    <div class="stat-box">Goed: <span id="res-correct" class="stat-val" style="color: #4CAF50">0</span></div>
-    <div class="stat-box">Fout: <span id="res-wrong" class="stat-val" style="color: #d32f2f">0</span></div>
+    <div style="display: flex; gap: 4vw; justify-content: center;">
+        <div class="stat-box">Totaal: <span id="res-total" class="stat-val">0</span></div>
+        <div class="stat-box">Goed: <span id="res-correct" class="stat-val" style="color: #4CAF50">0</span></div>
+        <div class="stat-box">Fout: <span id="res-wrong" class="stat-val" style="color: #d32f2f">0</span></div>
+    </div>
 
-    <div class="stat-box" style="margin-top: 40px;">
-        <div id="res-animals-label" style="font-size: 1.8rem; margin-bottom: 10px;">Dieren:</div>
-        <div id="res-animals" style="font-size: 5rem; line-height: 1.2; word-wrap: break-word;"></div>
+    <div class="stat-box" style="margin-top: 2vh; flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
+        <div id="res-animals-label" style="font-size: clamp(1rem, 2vh, 1.5rem); margin-bottom: 1vh;">Dieren:</div>
+        <div id="res-animals" style="font-size: clamp(2rem, 5vh, 4rem); line-height: 1.2; word-wrap: break-word;"></div>
     </div>
 
     <button id="restart-btn">Opnieuw Spelen 🔄</button>
@@ -273,6 +338,18 @@
     <div id="pause-overlay">
         <div class="pause-title">Pauze ⏸️</div>
         <button id="resume-btn">Verder Spelen ▶️</button>
+    </div>
+
+    <div id="level-start-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 25; display: none; align-items: center; justify-content: center; flex-direction: column; border-radius: 3vh;">
+        <div class="safari-header" id="next-level-title">Level Klaar!</div>
+        <div style="font-size: 2rem; color: #4CAF50; margin-bottom: 30px;">Goed gedaan! Klaar voor de volgende?</div>
+        <button id="start-level-btn" style="background: #FF9800; color: white; border: none; padding: 2vh 5vw; font-size: clamp(2rem, 4vh, 3rem); border-radius: 4vh; cursor: pointer; box-shadow: 0 0.8vh 0 #E65100;">Start Level ▶️</button>
+    </div>
+
+    <div id="badge-notification" style="position: absolute; top: 10%; left: 50%; transform: translateX(-50%); background: #FFF9C4; padding: 3vh; border-radius: 3vh; border: 0.8vh solid #FFD700; box-shadow: 0 2vh 4vh rgba(0,0,0,0.3); z-index: 30; display: none; flex-direction: column; align-items: center; animation: popIn 0.5s ease; text-align: center; width: 80vw; max-width: 500px;">
+        <div id="badge-notify-name" style="font-size: clamp(2rem, 5vh, 4rem); color: #E65100; font-weight: bold; margin-bottom: 1vh;">Naam</div>
+        <div id="badge-notify-desc" style="font-size: clamp(1.2rem, 3vh, 2.5rem); color: #555; margin-bottom: 2vh;">Omschrijving</div>
+        <div id="badge-notify-icon" style="font-size: clamp(5rem, 12vh, 10rem); filter: drop-shadow(0 0 10px gold);">🏆</div>
     </div>
 
     <div class="safari-header">🐘 Rekensafari Avontuur 🦁</div>
@@ -318,7 +395,18 @@
     let levelQuestionsAnswered = 0;
     let levelCorrectAnswers = 0;
     let currentStreak = 0;
-    let highestBadgeEarned = null; // Track best badge
+    let highestBadgeEarned = null; // Track best badge within session
+
+    // Stats
+    let stats = {
+        totalGames: 0,
+        totalCorrect: 0,
+        earnedBadges: []
+    };
+    let sessionStats = {
+        levelsCompleted: 0,
+        startTime: Date.now() // For duration tracking
+    };
 
     // Settings
     let selectedOperation = null;
@@ -327,6 +415,7 @@
     let configTime = 10;
     let configTotalPerLevel = 10;
     let configThreshold = 80; // Percent
+    let configBadgeDifficulty = "normal"; // easy, normal, hard
 
     // Elements
     const parentScreen = document.getElementById('parent-screen');
@@ -341,6 +430,9 @@
     const parentSaveBtn = document.getElementById('parent-save-btn');
     const toParentBtn = document.getElementById('to-parent-btn');
     const pauseOverlay = document.getElementById('pause-overlay');
+    const levelStartOverlay = document.getElementById('level-start-overlay');
+    const startLevelBtn = document.getElementById('start-level-btn');
+    const nextLevelTitle = document.getElementById('next-level-title');
 
     const operationOptions = document.querySelectorAll('#operation-options .option-btn');
     const levelOptions = document.querySelectorAll('#level-options .option-btn');
@@ -355,8 +447,21 @@
     const feedbackMessageEl = document.getElementById('feedback-message');
     const helperTextEl = document.getElementById('helper-text');
     const celebrationMessageEl = document.getElementById('celebration-message');
+    const badgeNotification = document.getElementById('badge-notification');
 
     // --- Initialization & Parent Screen ---
+
+    function loadStats() {
+        if (localStorage.getItem('safari_stats')) {
+            try {
+                stats = JSON.parse(localStorage.getItem('safari_stats'));
+            } catch(e) { console.error("Stats load error", e); }
+        }
+    }
+
+    function saveStats() {
+        localStorage.setItem('safari_stats', JSON.stringify(stats));
+    }
 
     function loadSettings() {
         if (localStorage.getItem('safari_cfg_name')) {
@@ -369,6 +474,12 @@
             document.getElementById('cfg-total').value = localStorage.getItem('safari_cfg_total');
             document.getElementById('cfg-threshold').value = localStorage.getItem('safari_cfg_threshold');
         }
+        if (localStorage.getItem('safari_cfg_badge_diff')) {
+            configBadgeDifficulty = localStorage.getItem('safari_cfg_badge_diff');
+            document.getElementById('cfg-badge-difficulty').value = configBadgeDifficulty;
+        }
+
+        loadStats(); // Load badge stats
     }
 
     parentSaveBtn.addEventListener('click', () => {
@@ -376,11 +487,13 @@
         configTime = parseInt(document.getElementById('cfg-time').value) || 10;
         configTotalPerLevel = parseInt(document.getElementById('cfg-total').value) || 10;
         configThreshold = parseInt(document.getElementById('cfg-threshold').value) || 80;
+        configBadgeDifficulty = document.getElementById('cfg-badge-difficulty').value;
 
         localStorage.setItem('safari_cfg_name', configName);
         localStorage.setItem('safari_cfg_time', configTime);
         localStorage.setItem('safari_cfg_total', configTotalPerLevel);
         localStorage.setItem('safari_cfg_threshold', configThreshold);
+        localStorage.setItem('safari_cfg_badge_diff', configBadgeDifficulty);
 
         parentScreen.style.display = 'none';
         setupContainer.style.display = 'block';
@@ -443,14 +556,29 @@
         levelCorrectAnswers = 0;
         currentStreak = 0;
         highestBadgeEarned = null;
-        updatePrestigeBadges();
         sommenTeller = 0;
         lastigeSommen = [];
         animalCollectionEl.textContent = "";
         isPaused = false;
         pauseOverlay.style.display = 'none';
+        levelStartOverlay.style.display = 'none';
+        celebrationMessageEl.textContent = "";
+
+        sessionStats.levelsCompleted = 0;
+        sessionStats.startTime = Date.now();
+
+        // Check lifetime badges at start (e.g., played X games)
+        stats.totalGames++;
+        saveStats();
+        checkBadges('game_start');
+        updatePrestigeBadges();
 
         generateProblem();
+    });
+
+    startLevelBtn.addEventListener('click', () => {
+        levelStartOverlay.style.display = 'none';
+        _generateActualProblem();
     });
 
     // --- Game Logic ---
@@ -484,12 +612,14 @@
     restartBtn.addEventListener('click', () => {
         resultsContainer.style.display = 'none';
         setupContainer.style.display = 'block';
+        celebrationMessageEl.textContent = "";
     });
 
     function endGame() {
         gameContainer.style.display = 'none';
         resultsContainer.style.display = 'block';
         clearInterval(timerInterval);
+        playSound('game_end');
 
         document.getElementById('res-total').textContent = totalQuestionsAnswered;
         document.getElementById('res-correct').textContent = animalsFound;
@@ -525,21 +655,38 @@
 
         // Show highest badge
         if (highestBadgeEarned) {
-             badgeContainer.innerHTML = `<div style="font-size: 1.5rem; margin-bottom: 10px; color: #FF9800;">Je Hoogste Badge:</div><div style="font-size: 8rem; filter: drop-shadow(0 0 15px gold);">${highestBadgeEarned}</div>`;
+             badgeContainer.innerHTML = `<div style="font-size: 1.5rem; margin-bottom: 10px; color: #FF9800;">Je Hoogste Level Badge:</div><div style="font-size: 8rem; filter: drop-shadow(0 0 15px gold);">${highestBadgeEarned}</div>`;
         } else {
              badgeContainer.innerHTML = "";
+        }
+
+        // Show new lifetime badges earned this session
+        // (Simplified: showing total badges count or last earned)
+        const earnedCount = stats.earnedBadges.length;
+        if (earnedCount > 0) {
+             const badgeList = document.createElement('div');
+             badgeList.style.marginTop = "20px";
+             badgeList.innerHTML = `<div style="font-size: 1.5rem; color: #2196F3;">Je hebt in totaal ${earnedCount} trofeeën! 🏆</div>`;
+             badgeContainer.appendChild(badgeList);
         }
     }
 
     function playSound(type) {
         let audio;
-        if (type === 'correct') {
-            audio = new Audio('https://www.soundjay.com/buttons/sounds/button-2.mp3');
-        } else if (type === 'levelup') {
+        // Using existing URLs but mapping them to new logic
+        if (type === 'prestige') {
+            // Prestige Badge (Was LevelUp sound - distinctive bell)
             audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
+        } else if (type === 'level_end') {
+            // Level End (Short positive beep)
+            audio = new Audio('https://www.soundjay.com/buttons/sounds/button-09.mp3');
+        } else if (type === 'game_end') {
+            // Game End (Celebration/Applause placeholder or reuse bell)
+            audio = new Audio('https://www.soundjay.com/human/sounds/applause-01.mp3');
         }
+
         if (audio) {
-            audio.volume = 0.3;
+            audio.volume = 0.2; // Low volume as requested
             audio.play().catch(e => console.log("Sound play error:", e));
         }
     }
@@ -583,17 +730,12 @@
                     showLevelUp();
                 } else {
                     celebrationMessageEl.textContent = "GEFELICITEERD! Je bent klaar!";
-                    playSound('levelup');
+                    playSound('game_end');
                     setTimeout(() => endGame(), 2500);
                 }
                 return;
             } else {
                 // Not enough success yet.
-                // Continue generating problems.
-                // We keep levelQuestionsAnswered accumulating, which means next check happens at N+1.
-                // This allows the child to dilute mistakes with correct answers until Threshold is met.
-
-                // Show encouragement if this was the specific boundary check
                 if (levelQuestionsAnswered === configTotalPerLevel) {
                     helperTextEl.textContent = "Nog even doorzetten om het level te halen!";
                 }
@@ -604,49 +746,135 @@
     }
 
     function showLevelUp() {
+        sessionStats.levelsCompleted++;
+        checkBadges('level_complete');
+
         levelQuestionsAnswered = 0;
         levelCorrectAnswers = 0;
         currentStreak = 0;
         updatePrestigeBadges();
 
         levelIndicator.textContent = `Level ${currentLevel}!`;
-        celebrationMessageEl.textContent = "GEFELICITEERD! Volgend Level!";
-        playSound('levelup');
-        setTimeout(() => celebrationMessageEl.textContent = "", 3000);
+        playSound('level_end');
+
+        // Show overlay to wait for manual start
+        nextLevelTitle.textContent = `Level ${currentLevel} Starten!`;
+        startLevelBtn.textContent = `Start Level ${currentLevel} ▶️`;
+        levelStartOverlay.style.display = 'flex';
+    }
+
+    // Badge Definitions
+    const badges = {
+        'level_chick':  { id: 'level_chick', icon: '🐣', name: 'Beginnend Kuikentje', desc: 'Je eerste stappen gezet!', cat: 'level' },
+        'level_cat':    { id: 'level_cat', icon: '🐱', name: 'Leergierige Miauw', desc: 'Je gaat lekker vooruit!', cat: 'level' },
+        'level_dog':    { id: 'level_dog', icon: '🐶', name: 'Doorzettende Woef', desc: 'Nog even volhouden!', cat: 'level' },
+        'level_rabbit': { id: 'level_rabbit', icon: '🐰', name: 'Krachtig Konijn', desc: 'Alles goed! Super!', cat: 'level' },
+
+        'session_bee':   { id: 'session_bee', icon: '🐝', name: 'Bezige Bij', desc: 'Al 2 levels klaar!', cat: 'session' },
+        'session_mouse': { id: 'session_mouse', icon: '🐭', name: 'Snelle Muis', desc: 'Supersnel gerekend!', cat: 'session' },
+        'session_bear':  { id: 'session_bear', icon: '🐻', name: 'Sterke Beer', desc: 'Level 3 Bereikt!', cat: 'session' },
+        'session_fox':   { id: 'session_fox', icon: '🦊', name: 'Sluwe Vos', desc: 'Level 5 Bereikt!', cat: 'session' },
+
+        'life_panda':    { id: 'life_panda', icon: '🐼', name: 'Slimme Panda', desc: 'Al 5 keer op Safari!', cat: 'life' },
+        'life_tiger':    { id: 'life_tiger', icon: '🐯', name: 'Perfecte Tijger', desc: '100 Vragen opgelost!', cat: 'life' },
+        'life_lion':     { id: 'life_lion', icon: '🦁', name: 'Leeuwenkoning', desc: '500 Vragen! Wauw!', cat: 'life' },
+        'life_unicorn':  { id: 'life_unicorn', icon: '🦄', name: 'Super Unicorn', desc: '1000 Vragen! Legendarisch!', cat: 'life' }
+    };
+
+    function checkBadges(context) {
+        let earned = false;
+
+        // Helper to award
+        const award = (id) => {
+            if (!stats.earnedBadges.includes(id)) {
+                stats.earnedBadges.push(id);
+                showBadgeNotification(badges[id]);
+                earned = true;
+                saveStats();
+            }
+        };
+
+        // Difficulty Multiplier
+        let mult = 1.0;
+        if (configBadgeDifficulty === 'easy') mult = 0.5;
+        if (configBadgeDifficulty === 'hard') mult = 1.5;
+
+        // Session Badges
+        if (context === 'level_complete') {
+            if (sessionStats.levelsCompleted >= 2) award('session_bee');
+            if (currentLevel >= 3) award('session_bear');
+            if (currentLevel >= 5) award('session_fox');
+            if (configTime <= 5) award('session_mouse');
+        }
+
+        // Lifetime Badges
+        if (context === 'game_start' || context === 'game_end') {
+            if (stats.totalGames >= Math.ceil(5 * mult)) award('life_panda');
+        }
+
+        // Total Correct (Check always)
+        if (stats.totalCorrect >= Math.ceil(100 * mult)) award('life_tiger');
+        if (stats.totalCorrect >= Math.ceil(500 * mult)) award('life_lion');
+        if (stats.totalCorrect >= Math.ceil(1000 * mult)) award('life_unicorn');
+
+        return earned;
+    }
+
+    function showBadgeNotification(badge) {
+        document.getElementById('badge-notify-icon').textContent = badge.icon;
+        document.getElementById('badge-notify-name').textContent = badge.name;
+        document.getElementById('badge-notify-desc').textContent = badge.desc;
+        badgeNotification.style.display = 'flex';
+        playSound('prestige');
         setTimeout(() => {
-            _generateActualProblem();
-        }, 3500);
+            badgeNotification.style.display = 'none';
+        }, 4000);
     }
 
     function updatePrestigeBadges() {
-        // Calculate streak percentage based on REQUIRED questions for this level
-        // (Streak / MinQuestions) * 100
-        if (configTotalPerLevel <= 0) return;
+        // Updates IN-GAME Level Badges (Visual only, transient)
+        if (configTotalPerLevel <= 0) return false;
+
+        // Difficulty scaling for Level Badges?
+        // Prompt implies scaling. Let's scale the streak requirement effectively by changing thresholds?
+        // Actually, Streak % is relative. Let's keep it simple: Fixed % for visual feedback.
+        // 25, 50, 75, 100.
 
         let pct = (currentStreak / configTotalPerLevel) * 100;
-        let animal = "";
+        let badge = null;
 
-        if (pct >= 100) animal = "🦁";
-        else if (pct >= 85) animal = "🐼";
-        else if (pct >= 70) animal = "🦊";
-        else if (pct >= 60) animal = "🐭";
-        else if (pct >= 50) animal = "🐶";
+        if (pct >= 100) badge = badges['level_rabbit'];
+        else if (pct >= 75) badge = badges['level_dog'];
+        else if (pct >= 50) badge = badges['level_cat'];
+        else if (pct >= 25) badge = badges['level_chick'];
 
-        if (animal) {
+        let newBadge = false;
+
+        if (badge) {
+            let animal = badge.icon;
+            if (prestigeLeft.textContent !== animal) {
+                newBadge = true;
+            }
+
             prestigeLeft.textContent = animal;
             prestigeRight.textContent = animal;
             prestigeLeft.classList.add('visible');
             prestigeRight.classList.add('visible');
 
-            // Track highest badge logic (Hierarchy: Lion > Panda > Fox > Mouse > Dog)
-            const hierarchy = ['🐶', '🐭', '🦊', '🐼', '🦁'];
-            if (!highestBadgeEarned || hierarchy.indexOf(animal) > hierarchy.indexOf(highestBadgeEarned)) {
+            // Track highest session badge
+            // Hierarchy: Chick < Cat < Dog < Rabbit
+            const levelOrder = ['🐣', '🐱', '🐶', '🐰'];
+            if (!highestBadgeEarned || levelOrder.indexOf(animal) > levelOrder.indexOf(highestBadgeEarned)) {
                 highestBadgeEarned = animal;
             }
         } else {
             prestigeLeft.classList.remove('visible');
             prestigeRight.classList.remove('visible');
+            prestigeLeft.textContent = "";
+            prestigeRight.textContent = "";
         }
+
+        return newBadge;
     }
 
     function _generateActualProblem() {
@@ -684,8 +912,9 @@
                 let tot = Math.floor(Math.random() * (maxVal - effectiveMin + 1)) + effectiveMin;
                 let d1 = Math.floor(Math.random() * (tot + 1));
                 currentAnswer = tot - d1;
-                txt = `Splits ${tot}:<br>${d1} en ...`;
-                problemEl.style.fontSize = "clamp(4rem, 12vh, 8rem)";
+                txt = `<span class="split-header">Splits ${tot}:</span><br><span class="split-body">${d1} en ...</span>`;
+                // Font size handled by classes now
+                problemEl.style.fontSize = "";
             } else if (op === 'add') {
                 currentAnswer = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
                 a = Math.floor(Math.random() * (currentAnswer + 1));
@@ -756,8 +985,14 @@
             levelQuestionsAnswered++;
             totalQuestionsAnswered++;
             currentStreak++;
-            updatePrestigeBadges();
-            playSound('correct');
+
+            stats.totalCorrect++;
+            saveStats();
+            checkBadges('correct_answer');
+
+            if (updatePrestigeBadges()) {
+                playSound('prestige');
+            }
 
             const namePart = configName ? ` ${configName}` : "";
             let newAnimal = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
