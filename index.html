@@ -544,6 +544,7 @@
         isPaused = false;
         pauseOverlay.style.display = 'none';
         levelStartOverlay.style.display = 'none';
+        celebrationMessageEl.textContent = "";
 
         sessionStats.levelsCompleted = 0;
         sessionStats.startTime = Date.now();
@@ -593,6 +594,7 @@
     restartBtn.addEventListener('click', () => {
         resultsContainer.style.display = 'none';
         setupContainer.style.display = 'block';
+        celebrationMessageEl.textContent = "";
     });
 
     function endGame() {
