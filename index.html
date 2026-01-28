@@ -120,6 +120,11 @@
 
         <div class="config-row">
             <div class="config-item">
+                <label>Naam van het kind</label>
+                <input type="text" id="cfg-name" placeholder="Naam" style="width: 180px;">
+                <div class="config-desc">Wordt gebruikt in het spel.</div>
+            </div>
+            <div class="config-item">
                 <label>Tijd per Vraag (sec)</label>
                 <input type="number" id="cfg-time" value="10" min="3" max="120">
                 <div class="config-desc">Seconden om een antwoord te geven.</div>
@@ -142,7 +147,7 @@
 
 <div id="setup-container">
     <button id="to-parent-btn">Mama & Papa</button>
-    <div class="safari-header">🌍 Safari Planning 🗺️</div>
+    <div class="safari-header" id="setup-header">We gaan samen op Safari! 🌍</div>
 
     <div class="setup-section">
         <h3>1. Wat wil je oefenen?</h3>
@@ -168,11 +173,25 @@
 </div>
 
 <div id="results-container">
-    <div class="safari-header">🏁 Safari Afgelopen!</div>
+    <div class="safari-header">Deze Safari is afgelopen! 🏁</div>
+
+    <div id="highest-badge-container" style="margin: 20px 0; min-height: 100px;">
+        <!-- Highest badge will go here -->
+    </div>
+
+    <div id="encouragement-text" style="font-size: 2rem; color: #E91E63; margin: 20px 40px; font-weight: bold; line-height: 1.4;">
+        <!-- Encouraging text goes here -->
+    </div>
+
     <div class="stat-box">Totaal gemaakt: <span id="res-total" class="stat-val">0</span></div>
     <div class="stat-box">Goed: <span id="res-correct" class="stat-val" style="color: #4CAF50">0</span></div>
     <div class="stat-box">Fout: <span id="res-wrong" class="stat-val" style="color: #d32f2f">0</span></div>
-    <div class="stat-box">Dieren: <span id="res-animals"></span></div>
+
+    <div class="stat-box" style="margin-top: 40px;">
+        <div id="res-animals-label" style="font-size: 1.8rem; margin-bottom: 10px;">Dieren:</div>
+        <div id="res-animals" style="font-size: 5rem; line-height: 1.2; word-wrap: break-word;"></div>
+    </div>
+
     <button id="restart-btn">Opnieuw Spelen 🔄</button>
 </div>
 
@@ -225,10 +244,12 @@
     let levelQuestionsAnswered = 0;
     let levelCorrectAnswers = 0;
     let currentStreak = 0;
+    let highestBadgeEarned = null; // Track best badge
 
     // Settings
     let selectedOperation = null;
     let targetMaxLevel = null;
+    let configName = "";
     let configTime = 10;
     let configTotalPerLevel = 10;
     let configThreshold = 80; // Percent
@@ -264,6 +285,11 @@
     // --- Initialization & Parent Screen ---
 
     function loadSettings() {
+        if (localStorage.getItem('safari_cfg_name')) {
+            configName = localStorage.getItem('safari_cfg_name');
+            document.getElementById('cfg-name').value = configName;
+            updatePersonalizedLabels();
+        }
         if (localStorage.getItem('safari_cfg_time')) {
             document.getElementById('cfg-time').value = localStorage.getItem('safari_cfg_time');
             document.getElementById('cfg-total').value = localStorage.getItem('safari_cfg_total');
@@ -272,17 +298,29 @@
     }
 
     parentSaveBtn.addEventListener('click', () => {
+        configName = document.getElementById('cfg-name').value.trim();
         configTime = parseInt(document.getElementById('cfg-time').value) || 10;
         configTotalPerLevel = parseInt(document.getElementById('cfg-total').value) || 10;
         configThreshold = parseInt(document.getElementById('cfg-threshold').value) || 80;
 
+        localStorage.setItem('safari_cfg_name', configName);
         localStorage.setItem('safari_cfg_time', configTime);
         localStorage.setItem('safari_cfg_total', configTotalPerLevel);
         localStorage.setItem('safari_cfg_threshold', configThreshold);
 
         parentScreen.style.display = 'none';
         setupContainer.style.display = 'block';
+        updatePersonalizedLabels();
     });
+
+    function updatePersonalizedLabels() {
+        const setupHeader = document.getElementById('setup-header');
+        if (configName) {
+            setupHeader.textContent = `We gaan samen op Safari, ${configName}! 🌍`;
+        } else {
+            setupHeader.textContent = "We gaan samen op Safari! 🌍";
+        }
+    }
 
     toParentBtn.addEventListener('click', () => {
         setupContainer.style.display = 'none';
@@ -330,6 +368,7 @@
         levelQuestionsAnswered = 0;
         levelCorrectAnswers = 0;
         currentStreak = 0;
+        highestBadgeEarned = null;
         updatePrestigeBadges();
         sommenTeller = 0;
         lastigeSommen = [];
@@ -382,6 +421,31 @@
         document.getElementById('res-correct').textContent = animalsFound;
         document.getElementById('res-wrong').textContent = totalWrong;
         document.getElementById('res-animals').textContent = animalCollectionEl.textContent;
+
+        // Personalization & High Score
+        const namePart = configName ? ` ${configName}` : "";
+        document.getElementById('res-animals-label').textContent = `Proficiat${namePart}, je hebt deze dieren tijdens je Safari kunnen verzamelen:`;
+
+        const encouragementEl = document.getElementById('encouragement-text');
+        const badgeContainer = document.getElementById('highest-badge-container');
+
+        // Encouraging text logic
+        let msg = "Wat heb je dat goed gedaan! Je bent een echte rekenkampioen.";
+        if (totalWrong === 0 && totalQuestionsAnswered > 0) {
+            msg = `Wauw${namePart}! Alles goed! Je bent superslim! 🌟`;
+        } else if (animalsFound > totalWrong) {
+            msg = `Goed gewerkt${namePart}! Je hebt heel veel dieren gered!`;
+        } else {
+            msg = `Blijven oefenen${namePart}, je wordt steeds beter!`;
+        }
+        encouragementEl.textContent = msg;
+
+        // Show highest badge
+        if (highestBadgeEarned) {
+             badgeContainer.innerHTML = `<div style="font-size: 1.5rem; margin-bottom: 10px; color: #FF9800;">Je Hoogste Badge:</div><div style="font-size: 8rem; filter: drop-shadow(0 0 15px gold);">${highestBadgeEarned}</div>`;
+        } else {
+             badgeContainer.innerHTML = "";
+        }
     }
 
     function playSound(type) {
@@ -490,6 +554,12 @@
             prestigeRight.textContent = animal;
             prestigeLeft.classList.add('visible');
             prestigeRight.classList.add('visible');
+
+            // Track highest badge logic (Hierarchy: Lion > Panda > Fox > Mouse > Dog)
+            const hierarchy = ['🐶', '🐭', '🦊', '🐼', '🦁'];
+            if (!highestBadgeEarned || hierarchy.indexOf(animal) > hierarchy.indexOf(highestBadgeEarned)) {
+                highestBadgeEarned = animal;
+            }
         } else {
             prestigeLeft.classList.remove('visible');
             prestigeRight.classList.remove('visible');
@@ -606,10 +676,11 @@
             updatePrestigeBadges();
             playSound('correct');
 
+            const namePart = configName ? ` ${configName}` : "";
             let newAnimal = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
-            let feedbackText = "Super! " + newAnimal + " gevonden!";
+            let feedbackText = `Super${namePart}! ` + newAnimal + " gevonden!";
             if (elapsed < (configTime * 1000) * 0.4) {
-                feedbackText = "Wauw, supersnel! " + newAnimal + " gered!";
+                feedbackText = `Wauw, supersnel${namePart}! ` + newAnimal + " gered!";
             }
             feedbackMessageEl.textContent = feedbackText;
             animalCollectionEl.textContent += newAnimal;
@@ -629,8 +700,9 @@
             currentStreak = 0; // Reset streak on wrong answer
             updatePrestigeBadges();
 
+            const namePart = configName ? ` ${configName}` : "";
             lastigeSommen.push({txt: problemEl.innerHTML, ans: currentAnswer});
-            feedbackMessageEl.textContent = "Helaas, volgende keer beter!";
+            feedbackMessageEl.textContent = `Helaas${namePart}, volgende keer beter!`;
             feedbackMessageEl.style.color = "#d32f2f";
             answerInput.classList.add('focus-mode');
             setTimeout(() => {
