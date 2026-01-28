@@ -218,6 +218,32 @@
         .stat-val { font-weight: bold; color: #2196F3; }
         #restart-btn { background: #2196F3; color: white; border: none; padding: 1.5vh 4vw; font-size: clamp(1.2rem, 2.5vh, 2rem); border-radius: 4vh; cursor: pointer; margin-top: 2vh; box-shadow: 0 0.6vh 0 #0d47a1; }
         #restart-btn:active { transform: translateY(0.6vh); box-shadow: none; }
+
+        .badge-card {
+            background: white;
+            padding: 0.5vh;
+            border-radius: 1vh;
+            flex: 0 0 auto;
+            width: 22vw;
+            max-width: 120px;
+            text-align: center;
+            font-size: clamp(0.7rem, 1.5vh, 1rem);
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border: 2px solid #ccc;
+        }
+        .badge-card.level { border-color: #E91E63; background: #fce4ec; }
+        .badge-card.session { border-color: #2196F3; background: #e3f2fd; }
+        .badge-card.life { border-color: #FF9800; background: #fff3e0; }
+
+        .badge-card .desc {
+            font-size: clamp(0.6rem, 1.2vh, 0.8rem);
+            color: #666;
+            margin-top: 0.2vh;
+            line-height: 1;
+        }
     </style>
 </head>
 <body>
@@ -260,22 +286,38 @@
 
     <div class="setup-section" style="margin: 1vh 0; width: 100%; flex-grow: 1; overflow-y: auto;">
         <h3 style="font-size: clamp(1.2rem, 2.5vh, 2rem); margin-bottom: 1vh;">🏆 Badges Overzicht</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1vh; text-align: center; font-size: clamp(0.8rem, 1.5vh, 1.2rem);">
-            <!-- Level Badges -->
-            <div style="background: #fce4ec; padding: 0.8vh; border-radius: 1vh; border: 2px solid #E91E63; color: #333;">🐣 Kuiken</div>
-            <div style="background: #fce4ec; padding: 0.8vh; border-radius: 1vh; border: 2px solid #E91E63; color: #333;">🐱 Miauw</div>
-            <div style="background: #fce4ec; padding: 0.8vh; border-radius: 1vh; border: 2px solid #E91E63; color: #333;">🐶 Woef</div>
-            <div style="background: #fce4ec; padding: 0.8vh; border-radius: 1vh; border: 2px solid #E91E63; color: #333;">🐰 Konijn</div>
-            <!-- Session Badges -->
-            <div style="background: #e3f2fd; padding: 0.8vh; border-radius: 1vh; border: 2px solid #2196F3; color: #333;">🐝 Bij</div>
-            <div style="background: #e3f2fd; padding: 0.8vh; border-radius: 1vh; border: 2px solid #2196F3; color: #333;">🐭 Muis</div>
-            <div style="background: #e3f2fd; padding: 0.8vh; border-radius: 1vh; border: 2px solid #2196F3; color: #333;">🐻 Beer</div>
-            <div style="background: #e3f2fd; padding: 0.8vh; border-radius: 1vh; border: 2px solid #2196F3; color: #333;">🦊 Vos</div>
-            <!-- Lifetime Badges -->
-            <div style="background: #fff3e0; padding: 0.8vh; border-radius: 1vh; border: 2px solid #FF9800; color: #333;">🐼 Panda</div>
-            <div style="background: #fff3e0; padding: 0.8vh; border-radius: 1vh; border: 2px solid #FF9800; color: #333;">🐯 Tijger</div>
-            <div style="background: #fff3e0; padding: 0.8vh; border-radius: 1vh; border: 2px solid #FF9800; color: #333;">🦁 Leeuw</div>
-            <div style="background: #fff3e0; padding: 0.8vh; border-radius: 1vh; border: 2px solid #FF9800; color: #333;">🦄 Unicorn</div>
+
+        <!-- Level Badges (Pink) -->
+        <div style="margin-bottom: 1.5vh;">
+            <div style="font-weight: bold; color: #E91E63; font-size: clamp(0.9rem, 2vh, 1.2rem); margin-bottom: 0.5vh;">Binnen 1 Level (Streak)</div>
+            <div style="display: flex; gap: 1vw; overflow-x: auto; padding-bottom: 0.5vh;">
+                <div class="badge-card level"><div>🐣 Kuiken</div><div class="desc">25% goed in level</div></div>
+                <div class="badge-card level"><div>🐱 Miauw</div><div class="desc">50% goed in level</div></div>
+                <div class="badge-card level"><div>🐶 Woef</div><div class="desc">75% goed in level</div></div>
+                <div class="badge-card level"><div>🐰 Konijn</div><div class="desc">Foutloos (100%)</div></div>
+            </div>
+        </div>
+
+        <!-- Session Badges (Blue) -->
+        <div style="margin-bottom: 1.5vh;">
+            <div style="font-weight: bold; color: #2196F3; font-size: clamp(0.9rem, 2vh, 1.2rem); margin-bottom: 0.5vh;">Over Meerdere Levels</div>
+            <div style="display: flex; gap: 1vw; overflow-x: auto; padding-bottom: 0.5vh;">
+                <div class="badge-card session"><div>🐝 Bij</div><div class="desc">2 levels voltooid</div></div>
+                <div class="badge-card session"><div>🐭 Muis</div><div class="desc">Snel (< 5s/vraag)</div></div>
+                <div class="badge-card session"><div>🐻 Beer</div><div class="desc">Level 3 bereikt</div></div>
+                <div class="badge-card session"><div>🦊 Vos</div><div class="desc">Level 5 bereikt</div></div>
+            </div>
+        </div>
+
+        <!-- Lifetime Badges (Orange) -->
+        <div>
+            <div style="font-weight: bold; color: #FF9800; font-size: clamp(0.9rem, 2vh, 1.2rem); margin-bottom: 0.5vh;">Levenslang (Prestatie)</div>
+            <div style="display: flex; gap: 1vw; overflow-x: auto; padding-bottom: 0.5vh;">
+                <div class="badge-card life"><div>🐼 Panda</div><div class="desc">5 spellen gespeeld</div></div>
+                <div class="badge-card life"><div>🐯 Tijger</div><div class="desc">100 vragen goed</div></div>
+                <div class="badge-card life"><div>🦁 Leeuw</div><div class="desc">500 vragen goed</div></div>
+                <div class="badge-card life"><div>🦄 Unicorn</div><div class="desc">1000 vragen goed</div></div>
+            </div>
         </div>
     </div>
 
