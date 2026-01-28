@@ -244,6 +244,20 @@
             margin-top: 0.2vh;
             line-height: 1;
         }
+
+        #reset-stats-btn {
+            background: #ffebee;
+            color: #d32f2f;
+            border: 0.3vh solid #ef5350;
+            padding: 1vh 2vw;
+            font-size: clamp(0.8rem, 1.5vh, 1.2rem);
+            border-radius: 2vh;
+            cursor: pointer;
+            margin-top: 1vh;
+            font-family: inherit;
+            align-self: center;
+        }
+        #reset-stats-btn:hover { background: #ffcdd2; }
     </style>
 </head>
 <body>
@@ -322,6 +336,7 @@
     </div>
 
     <button id="parent-save-btn">Opslaan & Start 💾</button>
+    <button id="reset-stats-btn">Scores Wissen ⚠️</button>
 </div>
 
 <div id="setup-container" class="app-container">
@@ -538,6 +553,18 @@
         parentScreen.style.display = 'none';
         setupContainer.style.display = 'block';
         updatePersonalizedLabels();
+    });
+
+    document.getElementById('reset-stats-btn').addEventListener('click', () => {
+        if (confirm("⚠️ Weet je zeker dat je alle scores en badges wilt wissen?\nDit kan niet ongedaan worden gemaakt!")) {
+            localStorage.removeItem('safari_stats');
+            stats = {
+                totalGames: 0,
+                totalCorrect: 0,
+                earnedBadges: []
+            };
+            alert("Alle scores zijn gewist.");
+        }
     });
 
     function updatePersonalizedLabels() {
