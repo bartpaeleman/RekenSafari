@@ -74,7 +74,7 @@
         }
 
         .prestige-badge {
-            font-size: clamp(3rem, 10vh, 8rem);
+            font-size: clamp(2rem, 8vw, 5rem);
             min-width: 10vw;
             opacity: 0;
             transition: all 0.5s ease;
@@ -87,7 +87,7 @@
 
         .som {
             font-family: Tahoma, Verdana, Arial, sans-serif;
-            font-size: clamp(4rem, 15vh, 10rem);
+            font-size: clamp(2.5rem, 12vw, 6rem);
             margin: 1vh 0;
             color: #333;
             display: flex;
@@ -117,7 +117,7 @@
 
         input {
             font-family: 'Comic Sans MS', sans-serif;
-            font-size: clamp(3rem, 8vh, 6rem);
+            font-size: clamp(2.5rem, 12vw, 6rem);
             width: 30vw;
             max-width: 300px;
             text-align: center;
@@ -267,7 +267,7 @@
         .split-top { margin-bottom: 0.5vh; font-weight: bold; }
         .split-legs { display: flex; gap: 4vw; color: #555; font-size: 0.5em; font-weight: normal; }
         .split-bottom { display: flex; gap: 8vw; margin-top: 0.5vh; font-weight: bold; }
-        .split-sentence { font-size: clamp(1.5rem, 3vh, 2.5rem); color: #555; margin-top: 2vh; font-weight: normal; }
+        .split-sentence { font-size: 0.5em; color: #555; margin-top: 2vh; font-weight: normal; }
     </style>
 </head>
 <body>
@@ -1025,7 +1025,7 @@
 
             do {
                 attempts++;
-                problemEl.style.fontSize = "8rem";
+                // problemEl.style.fontSize = "8rem"; // Removed to allow CSS responsiveness
 
                 if (op === 'split') {
                     let effectiveMin = Math.max(minVal, 2);
