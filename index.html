@@ -262,6 +262,12 @@
             align-self: center;
         }
         #reset-stats-btn:hover { background: #ffcdd2; }
+
+        .split-container { display: flex; flex-direction: column; align-items: center; line-height: 1; }
+        .split-top { margin-bottom: 0.5vh; font-weight: bold; }
+        .split-legs { display: flex; gap: 4vw; color: #555; font-size: 0.5em; font-weight: normal; }
+        .split-bottom { display: flex; gap: 8vw; margin-top: 0.5vh; font-weight: bold; }
+        .split-sentence { font-size: clamp(1.5rem, 3vh, 2.5rem); color: #555; margin-top: 2vh; font-weight: normal; }
     </style>
 </head>
 <body>
@@ -449,6 +455,8 @@
     let isPaused = false;
     let lastigeSommen = [];
     let sommenTeller = 0;
+    let recentProblems = [];
+    const MAX_RECENT_PROBLEMS = 4;
     const animalEmojis = ['🦁', '🐘', '🦒', '🐒', '🦓', '🐅', '🐊', '🦛'];
 
     // Level Progress Counters
@@ -1010,68 +1018,102 @@
             const colors = ["#4CAF50", "#FF9800", "#9C27B0", "#2196F3", "#F44336"];
             levelIndicator.style.background = colors[(currentLevel - 1) % colors.length];
             
-            let a, b, txt;
+            let a, b, txt, signature;
             let op = selectedOperation;
+            let valid = false;
+            let attempts = 0;
 
-            problemEl.style.fontSize = "8rem";
+            do {
+                attempts++;
+                problemEl.style.fontSize = "8rem";
 
-            if (op === 'split') {
-                let effectiveMin = Math.max(minVal, 2);
-                let tot = Math.floor(Math.random() * (maxVal - effectiveMin + 1)) + effectiveMin;
-                let d1 = Math.floor(Math.random() * (tot + 1));
-                currentAnswer = tot - d1;
-                txt = `<span class="split-header">Splits ${tot}:</span><span class="split-body">${d1} en ...</span>`;
-                // Font size handled by classes now
-                problemEl.style.fontSize = "";
-            } else if (op === 'add') {
-                currentAnswer = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
-                a = Math.floor(Math.random() * (currentAnswer + 1));
-                b = currentAnswer - a;
-                txt = `${a} + ${b} =`;
-            } else if (op === 'subtract') {
-                a = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
-                b = Math.floor(Math.random() * (a + 1));
-                currentAnswer = a - b;
-                txt = `${a} - ${b} =`;
-            } else if (op === 'multiply') {
-                 let attempts = 0;
-                 do {
-                    a = Math.floor(Math.random() * (maxVal/2)) + 1;
-                    if (a === 0) a = 1;
-                    let minB = Math.ceil(minVal / a);
-                    let maxB = Math.floor(maxVal / a);
-                    if (maxB >= minB) {
-                        b = Math.floor(Math.random() * (maxB - minB + 1)) + minB;
-                        currentAnswer = a * b;
-                        break;
-                    }
-                    attempts++;
-                 } while (attempts < 50);
+                if (op === 'split') {
+                    let effectiveMin = Math.max(minVal, 2);
+                    let tot = Math.floor(Math.random() * (maxVal - effectiveMin + 1)) + effectiveMin;
+                    let d1 = Math.floor(Math.random() * (tot + 1));
+                    currentAnswer = tot - d1;
 
-                 if (attempts >= 50) {
-                     a = 2; b = Math.floor(minVal/2) + 1; currentAnswer = a*b;
-                 }
-                 txt = `${a} x ${b} =`;
+                    // New Tree Visualization
+                    txt = `
+                    <div class="split-container">
+                        <div class="split-top">${tot}</div>
+                        <div class="split-legs"><span>/</span><span>\\</span></div>
+                        <div class="split-bottom">
+                            <div>${d1}</div>
+                            <div>...</div>
+                        </div>
+                    </div>
+                    <div class="split-sentence">${tot} kan ik splitsen in ${d1} en ...</div>
+                    `;
+                    problemEl.style.fontSize = ""; // Allow class styling
+                    signature = `split:${tot}:${d1}`;
 
-            } else if (op === 'divide') {
-                let attempts = 0;
-                do {
+                } else if (op === 'add') {
+                    currentAnswer = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+                    a = Math.floor(Math.random() * (currentAnswer + 1));
+                    b = currentAnswer - a;
+                    txt = `${a} + ${b} =`;
+                    signature = `add:${a}:${b}`;
+
+                } else if (op === 'subtract') {
                     a = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
-                    if (a < 1) a = 1;
-                    let factors = [];
-                    for(let i=1; i<=a; i++) {
-                        if (a % i === 0) factors.push(i);
-                    }
-                    if (factors.length > 0) {
-                        b = factors[Math.floor(Math.random() * factors.length)];
-                        currentAnswer = a / b;
-                        break;
-                    }
-                    attempts++;
-                } while (attempts < 50);
+                    b = Math.floor(Math.random() * (a + 1));
+                    currentAnswer = a - b;
+                    txt = `${a} - ${b} =`;
+                    signature = `sub:${a}:${b}`;
 
-                if (attempts >= 50) { a=4; b=2; currentAnswer=2; }
-                txt = `${a} : ${b} =`;
+                } else if (op === 'multiply') {
+                     let innerAttempts = 0;
+                     do {
+                        a = Math.floor(Math.random() * (maxVal/2)) + 1;
+                        if (a === 0) a = 1;
+                        let minB = Math.ceil(minVal / a);
+                        let maxB = Math.floor(maxVal / a);
+                        if (maxB >= minB) {
+                            b = Math.floor(Math.random() * (maxB - minB + 1)) + minB;
+                            currentAnswer = a * b;
+                            break;
+                        }
+                        innerAttempts++;
+                     } while (innerAttempts < 50);
+
+                     if (innerAttempts >= 50) {
+                         a = 2; b = Math.floor(minVal/2) + 1; currentAnswer = a*b;
+                     }
+                     txt = `${a} x ${b} =`;
+                     signature = `mul:${a}:${b}`;
+
+                } else if (op === 'divide') {
+                    let innerAttempts = 0;
+                    do {
+                        a = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+                        if (a < 1) a = 1;
+                        let factors = [];
+                        for(let i=1; i<=a; i++) {
+                            if (a % i === 0) factors.push(i);
+                        }
+                        if (factors.length > 0) {
+                            b = factors[Math.floor(Math.random() * factors.length)];
+                            currentAnswer = a / b;
+                            break;
+                        }
+                        innerAttempts++;
+                    } while (innerAttempts < 50);
+
+                    if (innerAttempts >= 50) { a=4; b=2; currentAnswer=2; }
+                    txt = `${a} : ${b} =`;
+                    signature = `div:${a}:${b}`;
+                }
+
+                if (!recentProblems.includes(signature)) {
+                    valid = true;
+                }
+
+            } while (!valid && attempts < 10);
+
+            recentProblems.push(signature);
+            if (recentProblems.length > MAX_RECENT_PROBLEMS) {
+                recentProblems.shift();
             }
 
             problemEl.innerHTML = txt;
