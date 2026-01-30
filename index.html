@@ -131,8 +131,9 @@
             flex-shrink: 0;
         }
         input:focus { border-color: #ff5722; box-shadow: 0 0 2vh rgba(255,87,34,0.5); }
+        input:disabled { opacity: 1; -webkit-text-fill-color: #d32f2f; color: #d32f2f; background: #fffde7; }
 
-        #feedback-message { font-size: clamp(1.5rem, 3vh, 3rem); color: #4CAF50; height: 4vh; margin: 1vh 0; font-weight: bold; flex-shrink: 0; }
+        #feedback-message { font-size: clamp(1.5rem, 3vh, 3rem); color: #4CAF50; min-height: 4vh; margin: 1vh 0; font-weight: bold; flex-shrink: 0; }
         #animal-collection { font-size: clamp(2rem, 5vh, 5rem); margin-top: 2vh; min-height: 6vh; word-wrap: break-word; line-height: 1.2; flex-shrink: 0; }
         #helper-text { font-size: clamp(1rem, 2vh, 1.5rem); color: #757575; margin-top: 1vh; height: 3vh; flex-shrink: 0; }
         .focus-mode { border-color: #f44336 !important; background-color: #ffebee !important; }
@@ -283,11 +284,6 @@
             <div class="config-desc-compact">Naam voor in het spel</div>
         </div>
         <div class="config-item compact">
-            <label>Tijd (sec)</label>
-            <input type="number" id="cfg-time" value="10" min="3" max="120">
-            <div class="config-desc-compact">Max tijd per vraag</div>
-        </div>
-        <div class="config-item compact">
             <label>Vragen/Level</label>
             <input type="number" id="cfg-total" value="10" min="5" max="100">
             <div class="config-desc-compact">Minimaal aantal vragen</div>
@@ -314,10 +310,10 @@
             </select>
             <div class="config-desc-compact">Bij fout</div>
         </div>
-        <div class="config-item compact">
-            <label>Tijd Antwoord</label>
-            <input type="number" id="cfg-correction-time" value="3" min="1" max="10">
-            <div class="config-desc-compact">Seconden</div>
+        <div class="config-item" style="flex: 2 1 200px; text-align: center;">
+            <label>Hoeveel tijd krijg je om te antwoorden:</label>
+            <input type="number" id="cfg-time" value="10" min="3" max="120">
+            <div class="config-desc-compact">Max tijd per vraag (Seconden)</div>
         </div>
     </div>
 
@@ -450,6 +446,7 @@
     <input type="number" id="answer" pattern="\d*" inputmode="numeric" autofocus placeholder="?">
     
     <div id="feedback-message"></div>
+    <button id="correction-next-btn" style="background: #2196F3; color: white; border: none; padding: 1.5vh 4vw; border-radius: 2vh; font-size: clamp(1.5rem, 3vh, 2.5rem); cursor: pointer; display: none; margin: 1vh auto; box-shadow: 0 0.5vh 0 #1976D2;">Volgende Vraag ▶️</button>
     <div id="helper-text"></div>
     <div id="animal-collection"></div>
     <div class="celebration-message" id="celebration-message"></div>
@@ -498,7 +495,6 @@
     let configThreshold = 80; // Percent
     let configBadgeDifficulty = "normal"; // easy, normal, hard
     let configShowCorrection = false;
-    let configCorrectionTime = 3;
 
     // Elements
     const parentScreen = document.getElementById('parent-screen');
@@ -531,6 +527,7 @@
     const helperTextEl = document.getElementById('helper-text');
     const celebrationMessageEl = document.getElementById('celebration-message');
     const badgeNotification = document.getElementById('badge-notification');
+    const correctionNextBtn = document.getElementById('correction-next-btn');
 
     // --- Initialization & Parent Screen ---
 
@@ -565,10 +562,6 @@
             configShowCorrection = localStorage.getItem('safari_cfg_show_correction') === 'true';
             document.getElementById('cfg-show-correction').value = configShowCorrection;
         }
-        if (localStorage.getItem('safari_cfg_correction_time')) {
-            configCorrectionTime = parseInt(localStorage.getItem('safari_cfg_correction_time')) || 3;
-            document.getElementById('cfg-correction-time').value = configCorrectionTime;
-        }
 
         loadStats(); // Load badge stats
     }
@@ -580,7 +573,6 @@
         configThreshold = parseInt(document.getElementById('cfg-threshold').value) || 80;
         configBadgeDifficulty = document.getElementById('cfg-badge-difficulty').value;
         configShowCorrection = document.getElementById('cfg-show-correction').value === 'true';
-        configCorrectionTime = parseInt(document.getElementById('cfg-correction-time').value) || 3;
 
         localStorage.setItem('safari_cfg_name', configName);
         localStorage.setItem('safari_cfg_time', configTime);
@@ -588,7 +580,6 @@
         localStorage.setItem('safari_cfg_threshold', configThreshold);
         localStorage.setItem('safari_cfg_badge_diff', configBadgeDifficulty);
         localStorage.setItem('safari_cfg_show_correction', configShowCorrection);
-        localStorage.setItem('safari_cfg_correction_time', configCorrectionTime);
 
         parentScreen.style.display = 'none';
         setupContainer.style.display = 'block';
@@ -1199,23 +1190,28 @@
             lastigeSommen.push({txt: problemEl.innerHTML, ans: currentAnswer});
 
             if (configShowCorrection) {
-                // Show Correct Answer Logic
-                feedbackMessageEl.innerHTML = `Helaas${namePart}, het was <span style="font-size: 1.5em; font-weight: bold;">${currentAnswer}</span>!`;
-                feedbackMessageEl.style.color = "#d32f2f"; // Red color
+                // Manual Correction Mode
+                clearInterval(timerInterval); // Stop Timer
+
+                feedbackMessageEl.innerHTML = `Helaas${namePart}, het was <span style="font-size: 1.5em; font-weight: bold;">${currentAnswer}</span>!<br><span style="font-size: 0.8em; color: #555;">Klik voor volgende vraag</span>`;
+                feedbackMessageEl.style.color = "#d32f2f";
+
                 answerInput.classList.add('focus-mode');
-
-                // Show answer in input for clarity
                 answerInput.value = currentAnswer;
-                answerInput.style.color = "#d32f2f"; // Red color
+                answerInput.style.color = "#d32f2f";
+                answerInput.disabled = true;
 
-                setTimeout(() => {
+                correctionNextBtn.style.display = 'block';
+                correctionNextBtn.onclick = () => {
+                    correctionNextBtn.style.display = 'none';
+                    answerInput.disabled = false;
                     answerInput.classList.remove('focus-mode');
-                    answerInput.style.color = "#e65100"; // Reset to default input color
+                    answerInput.style.color = "#e65100";
                     answerInput.value = '';
                     feedbackMessageEl.textContent = "";
                     feedbackMessageEl.style.color = "#4CAF50";
                     generateProblem();
-                }, configCorrectionTime * 1000);
+                };
 
             } else {
                 // Original Logic
