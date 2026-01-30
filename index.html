@@ -1177,7 +1177,7 @@
             if (elapsed < (configTime * 1000) * 0.4) {
                 feedbackText = `Wauw, supersnel${namePart}! ` + newAnimal + " gered!";
             }
-            feedbackMessageEl.textContent = feedbackText;
+            feedbackMessageEl.innerHTML = feedbackText;
             animalCollectionEl.textContent += newAnimal;
 
             if (animalCollectionEl.textContent.length > 20) animalCollectionEl.textContent = animalCollectionEl.textContent.substring(2);
@@ -1200,13 +1200,13 @@
 
             if (configShowCorrection) {
                 // Show Correct Answer Logic
-                feedbackMessageEl.textContent = `Helaas${namePart}, het was ${currentAnswer}!`;
-                feedbackMessageEl.style.color = "#E65100"; // Orange/Warning color
+                feedbackMessageEl.innerHTML = `Helaas${namePart}, het was <span style="font-size: 1.5em; font-weight: bold;">${currentAnswer}</span>!`;
+                feedbackMessageEl.style.color = "#d32f2f"; // Red color
                 answerInput.classList.add('focus-mode');
 
                 // Show answer in input for clarity
                 answerInput.value = currentAnswer;
-                answerInput.style.color = "#E65100";
+                answerInput.style.color = "#d32f2f"; // Red color
 
                 setTimeout(() => {
                     answerInput.classList.remove('focus-mode');
