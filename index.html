@@ -803,7 +803,12 @@
         timerInterval = setInterval(() => {
             let elapsed = Date.now() - startTime;
             let percent = (elapsed / totalTimeMs) * 100;
-            if (percent > 100) percent = 100;
+
+            if (percent >= 100) {
+                percent = 100;
+                clearInterval(timerInterval);
+                handleTimeout();
+            }
 
             timerBar.style.width = percent + '%';
             if (percent > 70) timerBar.style.backgroundColor = '#d32f2f';
@@ -811,6 +816,50 @@
             else timerBar.style.backgroundColor = '#2e7d32';
 
         }, 100);
+    }
+
+    function handleTimeout() {
+        levelQuestionsAnswered++;
+        totalQuestionsAnswered++;
+        totalWrong++;
+        currentStreak = 0;
+        updatePrestigeBadges();
+
+        const namePart = configName ? ` ${configName}` : "";
+        lastigeSommen.push({txt: problemEl.innerHTML, ans: currentAnswer});
+
+        if (configShowCorrection) {
+            feedbackMessageEl.innerHTML = `Tijd is om${namePart}! Het was <span style="font-size: 1.5em; font-weight: bold;">${currentAnswer}</span>!<br><span style="font-size: 0.8em; color: #555;">Klik voor volgende vraag</span>`;
+            feedbackMessageEl.style.color = "#d32f2f";
+
+            answerInput.classList.add('focus-mode');
+            answerInput.value = currentAnswer;
+            answerInput.style.color = "#d32f2f";
+            answerInput.disabled = true;
+
+            correctionNextBtn.style.display = 'block';
+            correctionNextBtn.onclick = () => {
+                correctionNextBtn.style.display = 'none';
+                answerInput.disabled = false;
+                answerInput.classList.remove('focus-mode');
+                answerInput.style.color = "#e65100";
+                answerInput.value = '';
+                feedbackMessageEl.textContent = "";
+                feedbackMessageEl.style.color = "#4CAF50";
+                generateProblem();
+            };
+        } else {
+            feedbackMessageEl.textContent = `Tijd is om${namePart}!`;
+            feedbackMessageEl.style.color = "#d32f2f";
+            answerInput.classList.add('focus-mode');
+            setTimeout(() => {
+                answerInput.classList.remove('focus-mode');
+                answerInput.value = '';
+                feedbackMessageEl.textContent = "";
+                feedbackMessageEl.style.color = "#4CAF50";
+                generateProblem();
+            }, 1000);
+        }
     }
 
     function generateProblem() {
@@ -1178,7 +1227,7 @@
                 generateProblem();
             }, 600);
 
-        } else if (answerInput.value.length >= currentAnswer.toString().length && val !== currentAnswer) {
+        } else if (answerInput.value.length >= currentAnswer.toString().length && val !== currentAnswer && !isNaN(val)) {
             // Wrong answer
             levelQuestionsAnswered++;
             totalQuestionsAnswered++;
