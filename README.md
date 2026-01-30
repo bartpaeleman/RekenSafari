@@ -6,7 +6,7 @@ Rekensafari is een interactieve, educatieve web-applicatie ontworpen om kinderen
 
 ### 🎮 Spelmodi
 De app ondersteunt vijf verschillende rekenoperaties:
-*   **Splitsen**: Visuele weergave van splitsingen (bijv. "Splits 8: 3 en ...").
+*   **Splitsen**: Visuele weergave van splitsingen (bijv. "Splits 8: 3 en ...") met een duidelijke boomstructuur.
 *   **Optellen (+) & Aftrekken (-)**.
 *   **Vermenigvuldigen (x) & Delen (:)**: Met slimme getallengeneratie (geen breuken/rest).
 
@@ -17,8 +17,11 @@ De app ondersteunt vijf verschillende rekenoperaties:
 
 ### 👨‍👩‍👧‍👦 Mama & Papa Scherm (Instellingen)
 Een afgeschermd gedeelte voor ouders om het spel te configureren:
-*   **Naam Kind**: Personaliseert de ervaring.
-*   **Tijd per Vraag**: Instelbaar (bijv. 10 seconden) voor tijdsdruk of rust.
+*   **Naam Kind**: Personaliseert de ervaring met de naam in feedbackberichten.
+*   **Hoeveel tijd krijg je om te antwoorden**: Stel een deadline in per vraag (standaard 10 seconden). Als de tijd om is, telt het als een fout antwoord.
+*   **Toon Antwoord (Correctie Modus)**:
+    *   **Nee**: Bij een fout krijgt het kind een korte melding en gaat het spel direct door.
+    *   **Ja**: Bij een fout (of tijd om) stopt het spel. Het foute antwoord en het *juiste* antwoord worden duidelijk getoond. Het kind moet op "Volgende Vraag" klikken om door te gaan. Dit geeft rust en tijd om te leren van fouten.
 *   **Vragen per Level**: Bepaal hoe lang een sessie duurt per level.
 *   **Drempel (%)**: Percentage goede antwoorden nodig om naar het volgende level te mogen.
 *   **Badge Niveau**: Pas de moeilijkheid van badges aan (Makkelijk, Normaal, Moeilijk).
@@ -45,21 +48,26 @@ Het spel bevat een uitgebreid badgesysteem om motivatie te stimuleren. Badges wo
 *   🦁 **Leeuw**: 500 vragen goed.
 *   🦄 **Unicorn**: 1000 vragen goed (Legendarisch!).
 
-### 📱 Responsive Design
-De app is volledig responsive en werkt op desktops, tablets en mobiele telefoons. Het past zich aan aan de schermgrootte en oriëntatie.
+### 📱 Responsive & Gebruiksvriendelijk
+*   **Mobiel Vriendelijk**: De interface is geoptimaliseerd voor telefoons (o.a. iPhone SE formaat). Grote knoppen, leesbare tekst zonder scrollen.
+*   **Dynamische Lettergroottes**: Tekst past zich aan de schermbreedte aan.
+*   **Feedback**: Duidelijke kleuren (Groen voor goed, Rood voor fout) en grote letters helpen het kind direct te zien hoe het gaat.
 
 ---
 
 ## 🚀 Hoe te gebruiken
 
 1.  Open `index.html` in een moderne webbrowser (Chrome, Firefox, Safari, Edge).
-2.  **Ouders**: Klik op de "Mama & Papa" knop (of stel dit de eerste keer in) om de naam en voorkeuren in te stellen. Klik op "Opslaan & Start".
+2.  **Ouders**: Klik op de "Mama & Papa" knop (of stel dit de eerste keer in) om de naam en voorkeuren in te stellen.
+    *   Stel eventueel "Toon Antwoord" in op "Ja" als je wilt dat je kind leert van fouten.
+    *   Klik op "Opslaan & Start".
 3.  **Kind**:
     *   Kies wat je wilt oefenen (bijv. Splitsen of Keer).
     *   Kies tot welk level je wilt gaan.
     *   Klik op **"Start Avontuur!"**.
 4.  **Spelen**:
-    *   Typ het antwoord in en het wordt direct gecontroleerd (geen Enter nodig).
+    *   Typ het antwoord in. Het wordt direct gecontroleerd (geen Enter nodig).
+    *   Bij een fout antwoord (indien ingesteld) zie je wat het moest zijn. Klik op de knop om verder te gaan.
     *   Verzamel dieren en badges!
     *   Als een level klaar is, klik op "Start Level" om verder te gaan.
 
