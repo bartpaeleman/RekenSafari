@@ -306,6 +306,19 @@
             </select>
             <div class="config-desc-compact">Moeilijkheid badges</div>
         </div>
+        <div class="config-item compact">
+            <label>Toon Antwoord</label>
+            <select id="cfg-show-correction">
+                <option value="false">Nee</option>
+                <option value="true">Ja</option>
+            </select>
+            <div class="config-desc-compact">Bij fout</div>
+        </div>
+        <div class="config-item compact">
+            <label>Tijd Antwoord</label>
+            <input type="number" id="cfg-correction-time" value="3" min="1" max="10">
+            <div class="config-desc-compact">Seconden</div>
+        </div>
     </div>
 
     <div class="setup-section" style="margin: 1vh 0; width: 100%; flex-grow: 1; overflow-y: auto;">
@@ -484,6 +497,8 @@
     let configTotalPerLevel = 10;
     let configThreshold = 80; // Percent
     let configBadgeDifficulty = "normal"; // easy, normal, hard
+    let configShowCorrection = false;
+    let configCorrectionTime = 3;
 
     // Elements
     const parentScreen = document.getElementById('parent-screen');
@@ -546,6 +561,14 @@
             configBadgeDifficulty = localStorage.getItem('safari_cfg_badge_diff');
             document.getElementById('cfg-badge-difficulty').value = configBadgeDifficulty;
         }
+        if (localStorage.getItem('safari_cfg_show_correction')) {
+            configShowCorrection = localStorage.getItem('safari_cfg_show_correction') === 'true';
+            document.getElementById('cfg-show-correction').value = configShowCorrection;
+        }
+        if (localStorage.getItem('safari_cfg_correction_time')) {
+            configCorrectionTime = parseInt(localStorage.getItem('safari_cfg_correction_time')) || 3;
+            document.getElementById('cfg-correction-time').value = configCorrectionTime;
+        }
 
         loadStats(); // Load badge stats
     }
@@ -556,12 +579,16 @@
         configTotalPerLevel = parseInt(document.getElementById('cfg-total').value) || 10;
         configThreshold = parseInt(document.getElementById('cfg-threshold').value) || 80;
         configBadgeDifficulty = document.getElementById('cfg-badge-difficulty').value;
+        configShowCorrection = document.getElementById('cfg-show-correction').value === 'true';
+        configCorrectionTime = parseInt(document.getElementById('cfg-correction-time').value) || 3;
 
         localStorage.setItem('safari_cfg_name', configName);
         localStorage.setItem('safari_cfg_time', configTime);
         localStorage.setItem('safari_cfg_total', configTotalPerLevel);
         localStorage.setItem('safari_cfg_threshold', configThreshold);
         localStorage.setItem('safari_cfg_badge_diff', configBadgeDifficulty);
+        localStorage.setItem('safari_cfg_show_correction', configShowCorrection);
+        localStorage.setItem('safari_cfg_correction_time', configCorrectionTime);
 
         parentScreen.style.display = 'none';
         setupContainer.style.display = 'block';
@@ -1170,16 +1197,39 @@
 
             const namePart = configName ? ` ${configName}` : "";
             lastigeSommen.push({txt: problemEl.innerHTML, ans: currentAnswer});
-            feedbackMessageEl.textContent = `Helaas${namePart}, volgende keer beter!`;
-            feedbackMessageEl.style.color = "#d32f2f";
-            answerInput.classList.add('focus-mode');
-            setTimeout(() => {
-                answerInput.classList.remove('focus-mode');
-                answerInput.value = '';
-                feedbackMessageEl.textContent = "";
-                feedbackMessageEl.style.color = "#4CAF50";
-                generateProblem();
-            }, 1000);
+
+            if (configShowCorrection) {
+                // Show Correct Answer Logic
+                feedbackMessageEl.textContent = `Helaas${namePart}, het was ${currentAnswer}!`;
+                feedbackMessageEl.style.color = "#E65100"; // Orange/Warning color
+                answerInput.classList.add('focus-mode');
+
+                // Show answer in input for clarity
+                answerInput.value = currentAnswer;
+                answerInput.style.color = "#E65100";
+
+                setTimeout(() => {
+                    answerInput.classList.remove('focus-mode');
+                    answerInput.style.color = "#e65100"; // Reset to default input color
+                    answerInput.value = '';
+                    feedbackMessageEl.textContent = "";
+                    feedbackMessageEl.style.color = "#4CAF50";
+                    generateProblem();
+                }, configCorrectionTime * 1000);
+
+            } else {
+                // Original Logic
+                feedbackMessageEl.textContent = `Helaas${namePart}, volgende keer beter!`;
+                feedbackMessageEl.style.color = "#d32f2f";
+                answerInput.classList.add('focus-mode');
+                setTimeout(() => {
+                    answerInput.classList.remove('focus-mode');
+                    answerInput.value = '';
+                    feedbackMessageEl.textContent = "";
+                    feedbackMessageEl.style.color = "#4CAF50";
+                    generateProblem();
+                }, 1000);
+            }
         }
     });
 
