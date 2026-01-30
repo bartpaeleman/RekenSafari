@@ -283,11 +283,6 @@
             <input type="text" id="cfg-name" placeholder="Naam">
             <div class="config-desc-compact">Naam voor in het spel</div>
         </div>
-        <div class="config-item" style="flex: 2 1 200px;">
-            <label>Hoeveel tijd krijg je om te antwoorden:</label>
-            <input type="number" id="cfg-time" value="10" min="3" max="120">
-            <div class="config-desc-compact">Max tijd per vraag (Seconden)</div>
-        </div>
         <div class="config-item compact">
             <label>Vragen/Level</label>
             <input type="number" id="cfg-total" value="10" min="5" max="100">
@@ -314,6 +309,11 @@
                 <option value="true">Ja</option>
             </select>
             <div class="config-desc-compact">Bij fout</div>
+        </div>
+        <div class="config-item" style="flex: 2 1 200px;">
+            <label>Hoeveel tijd krijg je om te antwoorden:</label>
+            <input type="number" id="cfg-time" value="10" min="3" max="120">
+            <div class="config-desc-compact">Max tijd per vraag (Seconden)</div>
         </div>
     </div>
 
